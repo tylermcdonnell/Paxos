@@ -1,0 +1,19 @@
+Using the autograder:
+
+Run "python tester.py" and check your output.
+
+To add your own tests, create a .test file and a .sol file in the tests/ and solutions/ directories respectively.
+You can check what your output was in the answers/ directory.
+
+Running tests manually:
+
+To run the sample tests, replace test_name with the name of the test and execute the following command:
+
+cat tests/[test_name].test | $(cat COMMAND)
+
+To automatically check the output:
+
+cat tests/[test_name].test | $(cat COMMAND) > temp_output && diff -q temp_output tests/[test_name].sol
+
+If your output matches the solution, NOTHING will be printed. Otherwise the lines that differ will be shown. 
+The output for the run of the test will also be stored in a file temp_output after running the second command.

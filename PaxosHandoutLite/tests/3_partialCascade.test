@@ -1,0 +1,24 @@
+start 5 2
+sendMessage 0 all_alive
+allClear
+crashServer 0
+allClear
+sendMessage 1 0_is_dead
+allClear
+crashServer 1
+restartServer 0
+allClear
+sendMessage 0 1_is_dead
+allClear
+crashServer 2
+restartServer 1
+allClear
+sendMessage 1 2_is_dead
+allClear
+crashServer 3
+restartServer 2
+allClear
+sendMessage 0 3_is_dead
+allClear
+printChatLog 0
+printChatLog 1
