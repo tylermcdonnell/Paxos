@@ -6,9 +6,16 @@ import java.util.LinkedList;
 
 import framework.NetController;
 import message.Message;
+import message.PlainMessage;
 import message.Request;
 import message.Response;
 
+/**
+ * A client in a chat room.  The chat room is kept consistent
+ * on all replicas with Paxos.
+ * @author Mike Feilbach
+ *
+ */
 public class Client implements Runnable {
 
 	// This replicas hand-made ID.
@@ -126,20 +133,30 @@ public class Client implements Runnable {
 			//******************************************************************
 			
 			// Receive messages on network.
-			ArrayList<Message> networkMessages = (ArrayList<Message>)this.network.getReceived();
+			ArrayList<Message> networkMessages = (ArrayList<Message>) this.network.getReceived();
 			
 			for (int i = 0; i < networkMessages.size(); i++)
 			{
-				System.out.println("Client " + this.id + " got message on network: " + networkMessages.get(i));
+				Message currMessage = networkMessages.get(i);
 				
-				if (networkMessages.get(i) instanceof Response)
+				// Testing.
+				//System.out.println("Client " + this.id + " got message on network: " + networkMessages.get(i));
+				
+				if (currMessage instanceof Response)
 				{
+					// Wait for <"response", cid, result> message from one of the replicas.
 					// TODO
+				}
+				
+				// Communication testing.
+				if (currMessage instanceof PlainMessage)
+				{
+					PlainMessage plainMessage = (PlainMessage) currMessage;
+					System.out.println("Client " + this.id + " received " + plainMessage);
 				}
 			}
 			
-			// Wait for <"response", cid, result> message from one of the replicas.
-			// TODO
+			
 		}
 	}
 	
@@ -157,7 +174,7 @@ public class Client implements Runnable {
 		// Broadcast <"request", <K, cid, op>> to all replicas.
 		for (int i = 0; i < this.numServers; i++)
 		{
-			this.network.sendMsg(this.network.getServerNetControllerIndex(i), request);
+			this.network.sendMsgToServer(i, request);
 		}
 	}
 	
@@ -168,11 +185,11 @@ public class Client implements Runnable {
 	
 	public void testClientSend(String message, int clientIndex)
 	{
-		this.network.sendMsg(this.network.getClientNetControllerIndex(clientIndex), message);
+		this.network.sendMsgToClient(clientIndex, new PlainMessage(message));
 	}
 	
 	public void testServerSend(String message, int serverIndex)
 	{
-		this.network.sendMsg(this.network.getServerNetControllerIndex(serverIndex), message);
+		this.network.sendMsgToServer(serverIndex, new PlainMessage(message));
 	}
 }

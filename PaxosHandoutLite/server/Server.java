@@ -4,15 +4,16 @@ import java.util.ArrayList;
 
 import message.Decision;
 import message.Message;
+import message.PlainMessage;
 import message.Proposal;
 import message.Request;
 import client.Command;
 import framework.NetController;
 
 /**
- * Represents a replica.
- * 
+ * A Paxos server, which acts as a replica, leader, and acceptor.
  * @author Mike Feilbach
+ * 
  */
 public class Server implements Runnable {
 
@@ -69,7 +70,7 @@ public class Server implements Runnable {
 		while (true)
 		{
 			// Receive messages from network.
-			ArrayList<Message> networkMessages = (ArrayList<Message>)this.network.getReceived();
+			ArrayList<Message> networkMessages = (ArrayList<Message>) this.network.getReceived();
 			
 			for (int i = 0; i < networkMessages.size(); i++)
 			{
@@ -78,6 +79,13 @@ public class Server implements Runnable {
 				performReplicaTasks(currMessage);
 				performLeaderTasks(currMessage);
 				performAcceptorTasks(currMessage);
+				
+				// Communication testing.
+				if (currMessage instanceof PlainMessage)
+				{
+					PlainMessage plainMessage = (PlainMessage) currMessage;
+					System.out.println("Server " + this.id + " received " + plainMessage);
+				}
 			}
 		}
 	}
@@ -169,11 +177,11 @@ public class Server implements Runnable {
 		
 	public void testClientSend(String message, int clientIndex)
 	{
-		this.network.sendMsg(this.network.getClientNetControllerIndex(clientIndex), message);
+		this.network.sendMsgToClient(clientIndex, new PlainMessage(message));
 	}
 		
 	public void testServerSend(String message, int serverIndex)
 	{
-		this.network.sendMsg(this.network.getServerNetControllerIndex(serverIndex), message);
+		this.network.sendMsgToServer(serverIndex, new PlainMessage(message));
 	}
 }

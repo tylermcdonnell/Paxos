@@ -119,11 +119,27 @@ public class NetController {
 		return Base64.getEncoder().encodeToString(out.toByteArray());
 	}
 	
-	public boolean sendMsg(int process, Message msg)
+	// MIKE: changed for Paxos.
+	public boolean sendMsgToClient(int process, Message msg)
 	{
 		try
 		{
-			return sendMsg(process, toString((Serializable)msg));
+			return sendMsg(this.getClientNetControllerIndex(process), toString((Serializable)msg));
+		}
+		catch (Exception exc)
+		{
+			System.out.println(exc.getMessage());
+			System.out.println("ERROR: IOException while sending message.");
+			return false;
+		}
+	}
+	
+	// Mike: changed for Paxos.
+	public boolean sendMsgToServer(int process, Message msg)
+	{
+		try
+		{
+			return sendMsg(this.getServerNetControllerIndex(process), toString((Serializable)msg));
 		}
 		catch (Exception exc)
 		{
