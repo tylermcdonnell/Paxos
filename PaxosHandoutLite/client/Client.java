@@ -18,10 +18,10 @@ import message.Response;
  */
 public class Client implements Runnable {
 
-	// This replicas hand-made ID.
+	// This client's hand-made ID.
 	private final int id;
 	
-	// Buffered queue commands sent to clients from the master.
+	// Buffered queue commands sent to client from the master.
 	private LinkedList<String> clientReceiveQueue;
 	
 	// Client-local unique command ID.  For each command issued, use a new cid.
@@ -95,7 +95,7 @@ public class Client implements Runnable {
 		while (true)
 		{
 			//******************************************************************
-			//* MASTER-RELATED MESSAGES
+			//* MASTER MESSAGES
 			//******************************************************************
 			
 			// This will contain the messages received in this iteration
@@ -116,7 +116,7 @@ public class Client implements Runnable {
 			
 			
 			//******************************************************************
-			//* NOT-MASTER-RELATED MESSAGES
+			//* NETWORK MESSAGES
 			//******************************************************************
 			
 			// Receive messages on network.

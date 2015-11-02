@@ -18,6 +18,10 @@ public class Master {
 	// queue that client i is continuously listening on.
     public static ArrayList<LinkedList<String>> clientQueues = new ArrayList<LinkedList<String>>();
     
+    // A list of queues we can talk to servers with.  The queue at index i is the
+ 	// queue that server i is continuously listening on.
+     public static ArrayList<LinkedList<String>> serverQueues = new ArrayList<LinkedList<String>>();
+    
     // A list of client thread handles.
  	public static ArrayList<Thread> clientThreads = new ArrayList<Thread>();
 
@@ -127,7 +131,18 @@ public class Master {
         // Added by Mike.
         case "commTest":
         	
+        	// Make sure NetControllers between servers and clients are
+        	// working nicely.
         	commTest();
+        	
+        	break;
+        	
+        // Added by Mike.
+        case "ServQueueTest":
+        	
+        	// Make sure server queues are working nicely.
+        	int serverIndex = Integer.parseInt(inputLine[1]);
+        	serverQueues.get(serverIndex).add("Hello server " + serverIndex);
         	
         	break;
       }
@@ -147,37 +162,41 @@ public class Master {
       int numNetControllers = numNodes + numClients;
       for (int i = 0; i < numNetControllers; i++)
       {
-      	createNetController(i, numNetControllers, numClients);
+    	  createNetController(i, numNetControllers, numClients);
       }
       
       // Create servers.
       for (int i = 0; i < numNodes; i++)
       {
-      	// Pass in ID of this server.
-      	Server server = new Server(i, getServerNetController(i));
-      	Thread serverThread = new Thread(server);
-      	serverThread.start();
+    	  // A queue for give this client commands.
+    	  LinkedList<String> serverQueue = new LinkedList<String>();
+    	  serverQueues.add(serverQueue);
+    	  
+    	  // Pass in ID of this server.
+    	  Server server = new Server(i, getServerNetController(i), serverQueue);
+    	  Thread serverThread = new Thread(server);
+    	  serverThread.start();
       	
-      	// Store the thread and the underying object.
-      	Master.serverThreads.add(serverThread);
-      	Master.serverProcesses.add(server);
+    	  // Store the thread and the underlying object.
+    	  Master.serverThreads.add(serverThread);
+    	  Master.serverProcesses.add(server);
       }
       
       // Create clients.
       for (int i = 0; i < numClients; i++)
       {
-      	// A queue for give this client commands.
-      	LinkedList<String> clientQueue = new LinkedList<String>();
-      	clientQueues.add(clientQueue);
+    	  // A queue for give this client commands.
+    	  LinkedList<String> clientQueue = new LinkedList<String>();
+    	  clientQueues.add(clientQueue);
       	
-      	// Pass in ID of this client.
-      	Client client = new Client(i, clientQueue, getClientNetController(i), numClients, numNodes);
-      	Thread clientThread = new Thread(client);
-      	clientThread.start();
+    	  // Pass in ID of this client.
+    	  Client client = new Client(i, clientQueue, getClientNetController(i), numClients, numNodes);
+    	  Thread clientThread = new Thread(client);
+    	  clientThread.start();
       	
-      	// Store the thread and the underlying object.
-      	Master.clientThreads.add(clientThread);
-      	Master.clientProcesses.add(client);
+    	  // Store the thread and the underlying object.
+    	  Master.clientThreads.add(clientThread);
+    	  Master.clientProcesses.add(client);
       }
   }
   

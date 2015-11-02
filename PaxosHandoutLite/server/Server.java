@@ -1,6 +1,8 @@
 package server;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import message.Decision;
 import message.Message;
@@ -17,7 +19,7 @@ import framework.NetController;
  */
 public class Server implements Runnable {
 
-	// This replicas hand-made ID.
+	// This server's hand-made ID.
 	private final int id;
 	
 	// Let this replica be p. This is p.proposals.
@@ -45,6 +47,9 @@ public class Server implements Runnable {
 	// This server's NetController.
 	private NetController network;
 	
+	// Buffered queue commands sent to client from the master.
+	private LinkedList<String> serverReceiveQueue;
+	
 	
 	/**
 	 * Constructor.
@@ -52,7 +57,7 @@ public class Server implements Runnable {
 	 * @param id, the ID of this server.
 	 * @param nc, the NetController for this server.
 	 */
-	public Server(int id, NetController nc)
+	public Server(int id, NetController nc, LinkedList<String> serverReceiveQueue)
 	{
 		this.id = id;
 		this.proposals = new ArrayList<Proposal>();
@@ -60,6 +65,7 @@ public class Server implements Runnable {
 		this.slot_num = 1;
 		this.state = new State();
 		this.network = nc;
+		this.serverReceiveQueue = serverReceiveQueue;
 	}
 	
 	@Override
@@ -69,6 +75,25 @@ public class Server implements Runnable {
 		
 		while (true)
 		{
+			//******************************************************************
+			//* MASTER MESSAGES
+			//******************************************************************
+			
+			// This will contain the messages received in this iteration
+			// from the master.
+			ArrayList<String> masterMessages = getMessagesFromMaster();
+			
+			// Process messages from master.
+			for (int i = 0; i < masterMessages.size(); i++)
+			{
+				System.out.println("Server " + this.id + " received from master: " + masterMessages.get(i));
+			}
+			
+			
+			//******************************************************************
+			//* NETWORK MESSAGES
+			//******************************************************************
+			
 			// Receive messages from network.
 			ArrayList<Message> networkMessages = (ArrayList<Message>) this.network.getReceived();
 			
@@ -142,6 +167,36 @@ public class Server implements Runnable {
 		// TODO
 	}
 	
+	
+	/**
+	 * Returns messages sent from the master.
+	 * @return messages sent from the master.
+	 */
+	private ArrayList<String> getMessagesFromMaster()
+	{
+		ArrayList<String> messagesFromMaster = new ArrayList<String>();
+		
+		// Continuously listen for client commands from the master.
+		synchronized(this.serverReceiveQueue)
+		{	
+			for (Iterator<String> i = this.serverReceiveQueue.iterator(); i.hasNext();)
+			{
+				String msg = i.next();
+				i.remove();
+				
+				// Process this message outside of the iterator loop.
+				messagesFromMaster.add(msg);
+			}
+		}
+		
+		return messagesFromMaster;
+	}
+	
+	
+	/**
+	 * // TODO
+	 * @param p
+	 */
 	private void propose(Command p)
 	{
 		// TODO
@@ -165,6 +220,11 @@ public class Server implements Runnable {
 		//}
 	}
 	
+	
+	/**
+	 * // TODO
+	 * @param p
+	 */
 	private void perform(Command p)
 	{
 		// TODO
