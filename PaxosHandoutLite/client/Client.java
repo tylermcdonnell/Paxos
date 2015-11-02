@@ -95,25 +95,12 @@ public class Client implements Runnable {
 		while (true)
 		{
 			//******************************************************************
-			//* MASTER-RELATED
+			//* MASTER-RELATED MESSAGES
 			//******************************************************************
 			
 			// This will contain the messages received in this iteration
 			// from the master.
-			ArrayList<String> masterMessages = new ArrayList<String>();
-			
-			// Continuously listen for client commands from the master.
-			synchronized(this.clientReceiveQueue)
-			{	
-				for (Iterator<String> i = this.clientReceiveQueue.iterator(); i.hasNext();)
-				{
-					String msg = i.next();
-					i.remove();
-					
-					// Process this message outside of the iterator loop.
-					masterMessages.add(msg);
-				}
-			}
+			ArrayList<String> masterMessages = getMessagesFromMaster();
 			
 			// Process messages from master.
 			for (int i = 0; i < masterMessages.size(); i++)
@@ -129,7 +116,7 @@ public class Client implements Runnable {
 			
 			
 			//******************************************************************
-			//* NOT-MASTER-RELATED
+			//* NOT-MASTER-RELATED MESSAGES
 			//******************************************************************
 			
 			// Receive messages on network.
@@ -155,9 +142,32 @@ public class Client implements Runnable {
 					System.out.println("Client " + this.id + " received " + plainMessage);
 				}
 			}
-			
-			
 		}
+	}
+	
+	
+	/**
+	 * Returns messages sent from the master.
+	 * @return messages sent from the master.
+	 */
+	private ArrayList<String> getMessagesFromMaster()
+	{
+		ArrayList<String> messagesFromMaster = new ArrayList<String>();
+		
+		// Continuously listen for client commands from the master.
+		synchronized(this.clientReceiveQueue)
+		{	
+			for (Iterator<String> i = this.clientReceiveQueue.iterator(); i.hasNext();)
+			{
+				String msg = i.next();
+				i.remove();
+				
+				// Process this message outside of the iterator loop.
+				messagesFromMaster.add(msg);
+			}
+		}
+		
+		return messagesFromMaster;
 	}
 	
 
