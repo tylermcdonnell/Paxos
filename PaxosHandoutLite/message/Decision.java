@@ -24,5 +24,15 @@ public class Decision extends Message
 		retVal += "Decision: <" + this.proposal.toString() + ">";
 		return retVal;
 	}
+	
+	public Proposal getProposal()
+	{
+		return this.proposal;
+	}
+	
+	public int getProposalSlotNum()
+	{
+		return this.proposal.getSlotNum();
+	}
 
 }

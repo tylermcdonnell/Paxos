@@ -30,7 +30,7 @@ public class Server implements Runnable {
 	// Let this replica be p. This is p.decisions.
 	// Another set of <slot number, command> pairs for decided slots
 	// (initially empty).
-	private ArrayList<Proposal> decisions;
+	private ArrayList<Decision> decisions;
 	
 	// Let this replica be p. This is p.slot_num.
 	// The replica's current slot number (equivalent to the version
@@ -61,7 +61,7 @@ public class Server implements Runnable {
 	{
 		this.id = id;
 		this.proposals = new ArrayList<Proposal>();
-		this.decisions = new ArrayList<Proposal>();
+		this.decisions = new ArrayList<Decision>();
 		this.slot_num = 1;
 		this.state = new State();
 		this.network = nc;
@@ -124,6 +124,7 @@ public class Server implements Runnable {
 	 */
 	private void performReplicaTasks(Message message)
 	{
+		// IN PAPER: case <request, p>
 		if (message instanceof Request)
 		{
 			Request request = (Request) message;
@@ -133,14 +134,76 @@ public class Server implements Runnable {
 			// TODO
 		}
 			
-			
+		// IN PAPER: case <decision, s, p>
 		if (message instanceof Decision)
 		{
 			Decision decision = (Decision) message;
 			System.out.println("Replica " + this.id + " received " + decision);
 			
+			// Add to the local list of decisions, only if we don't already
+			// have it.
+			if (!this.decisions.contains(decision))										// Do we have to implement an equals
+																						// method for Decision to use contains()
+																						// properly? I think yes.
+			{
+				this.decisions.add(decision);
+			}
+			
+			// Keep performing decisions in slot_num as long as we can.
+			// Note: this decision may have to do with a higher slot than slot_num,
+			// since decisions can come from other replicas.  In fact, we may ave
+			// received a decision to a command we have never seen before.
+			while (hasDecisionWithSlotNum(this.slot_num) != null)
+			{
+				// This is the decision that has slot_num.
+				Decision d = hasDecisionWithSlotNum(this.slot_num);
+				
+				// Check if there are any proposals in proposals which
+				// have the same slot number as this decision, but are
+				// not equal to this decision (the command is different).
+				// If so, re-propose this proposal so it can fill a higher
+				// slot in the future.
+				//if ()
+				//{
+				//	propose();
+				//}
+				// TODO
+				
+				// Perform the command of the decision.
+				perform(d.getProposal().getCommand());
+			}
+			
 			// TODO
 		}
+	}
+	
+	
+	/**
+	 * Returns the decision in this server's replica's list of decisions
+	 * which has slot_num equal to slotNum.  Else, if not found, returns
+	 * null.
+	 * 
+	 * @param slotNum, the slotNum we are looking for.
+	 * 
+	 * @return the decision in this server's replica's list of decisions
+	 * which has slot_num equal to slotNum.  Else, if not found, returns
+	 * null.
+	 */
+	private Decision hasDecisionWithSlotNum(int slotNum)
+	{
+		// Traverse decisions looking for the given slot_num.
+		// slot_num is unique to each decision. 
+		for (int i = 0; i < this.decisions.size(); i++)
+		{
+			Decision tempDecision = this.decisions.get(i);
+			
+			if (tempDecision.getProposalSlotNum() == this.slot_num)
+			{
+				return tempDecision;
+			}
+		}
+		
+		return null;
 	}
 	
 	
