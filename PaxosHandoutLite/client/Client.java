@@ -3,6 +3,7 @@ package client;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import framework.NetController;
 import message.Message;
@@ -100,7 +101,7 @@ public class Client implements Runnable {
 			
 			// This will contain the messages received in this iteration
 			// from the master.
-			ArrayList<String> masterMessages = getMessagesFromMaster();
+			ArrayList<String> masterMessages = getMasterMessages();
 			
 			// Process messages from master.
 			for (int i = 0; i < masterMessages.size(); i++)
@@ -120,7 +121,7 @@ public class Client implements Runnable {
 			//******************************************************************
 			
 			// Receive messages on network.
-			ArrayList<Message> networkMessages = (ArrayList<Message>) this.network.getReceived();
+			ArrayList<Message> networkMessages = getNetworkMessages();
 			
 			for (int i = 0; i < networkMessages.size(); i++)
 			{
@@ -147,10 +148,34 @@ public class Client implements Runnable {
 	
 	
 	/**
-	 * Returns messages sent from the master.
-	 * @return messages sent from the master.
+	 * Returns an ArrayList<Message> of the messages received over the
+	 * network at the time this method is called.
+	 * 
+	 * @return an ArrayList<Message> of the messages received over the
+	 * network at the time this method is called.
 	 */
-	private ArrayList<String> getMessagesFromMaster()
+	private ArrayList<Message> getNetworkMessages()
+	{
+		ArrayList<Message> messagesFromNet = new ArrayList<Message>();
+		
+		List<Message> received = this.network.getReceived();
+		for (Iterator<Message> i = received.iterator(); i.hasNext();)
+		{
+			messagesFromNet.add(i.next());
+		}
+		
+		return messagesFromNet;
+	}
+	
+	
+	/**
+	 * Returns messages sent from the master at the time this method is
+	 * called.
+	 * 
+	 * @return messages sent from the master at the time this method is
+	 * called.
+	 */
+	private ArrayList<String> getMasterMessages()
 	{
 		ArrayList<String> messagesFromMaster = new ArrayList<String>();
 		
