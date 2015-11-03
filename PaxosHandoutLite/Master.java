@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Scanner;
 
+import Ballot.Ballot;
+import Ballot.BallotGenerator;
 import client.Client;
 import client.Command;
 import framework.Config;
@@ -159,6 +161,13 @@ public class Master {
         	
         	sendServerDecisionTest();
 
+        	break;
+        	
+        // Added by Mike.
+        case "ballotTest":
+        	
+        	ballotTest();
+        	
         	break;
       }
     }
@@ -357,5 +366,35 @@ public class Master {
 		
 		// Should not be added to decisions.
 		Master.netControllers.get(0).sendMsgToServer(serverIndex, m);
+	}
+	
+	
+	private static void ballotTest()
+	{
+		BallotGenerator bg0 = new BallotGenerator(0);
+    	BallotGenerator bg1 = new BallotGenerator(1);
+    	
+    	Ballot firstBallot0 = bg0.getCurrentBallot();
+    	Ballot firstBallot1 = bg1.getCurrentBallot();
+    	System.out.println("x = First ballot leader 0: " + firstBallot0);
+    	System.out.println("y = First ballot leader 1: " + firstBallot1);
+    	
+    	System.out.println("x > y (false): " + firstBallot0.greaterThan(firstBallot1));
+    	
+    	Ballot secondBallot0 = bg0.getNextBallot();
+    	Ballot secondBallot1 = bg1.getNextBallot();
+    	System.out.println("x = Second ballot leader 0: " + secondBallot0);
+    	System.out.println("y = Second ballot leader 1: " + secondBallot1);
+    	
+    	System.out.println("x > y (false): " + secondBallot0.greaterThan(secondBallot1));
+    	
+    	Ballot thirdBallot0 = bg0.getNextBallot();
+    	System.out.println("x = Third ballot leader 0: " + thirdBallot0);
+    	System.out.println("y = Second ballot leader 1: " + secondBallot1);
+    	
+    	System.out.println("x > y (true): " + thirdBallot0.greaterThan(secondBallot1));
+    	
+    	System.out.flush();
+    	System.exit(-1);
 	}
 }
