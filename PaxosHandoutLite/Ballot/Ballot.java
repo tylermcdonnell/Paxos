@@ -1,22 +1,104 @@
 package Ballot;
 
 /**
- * Generates ballots for any given leader in the Paxos algorithm.
+ * A ballot in the Paxos algorithm.
  * @author Mike Feilbach
  *
  */
-public class BallotGenerator
+public class Ballot
 {
-	private int leaderId;
 	
-	public BallotGenerator(int leaderId)
+	// A ballot will be (ballotId, leaderId), and two ballots
+	// will be compared lexicographically.
+	private int leaderId;
+	private int ballotId;
+	
+	/**
+	 * Default constructor
+	 * 
+	 * @param leaderId, the ID of the leader this Ballot is for.
+	 */
+	public Ballot(int leaderId)
 	{
 		this.leaderId = leaderId;
+		this.ballotId = 0;
 	}
 	
-	public int getNextBallot()
+	/**
+	 * Create a Ballot with the given leader ID and ballot ID.
+	 */
+	public Ballot(int leaderId, int ballotId)
 	{
-		// TODO
-		return 0;
+		this.leaderId = leaderId;
+		this.ballotId = ballotId;
+	}
+	
+	
+	/**
+	 * Returns true iff this Ballot is greater than Ballot y.
+	 * 
+	 * @param y, Ballot y.
+	 * 
+	 * @return true iff this Ballot is greater than Ballot y.
+	 */
+	public boolean greaterThan(Ballot y)
+	{
+		// Check if this is the same ballot.
+		if ((this.ballotId == y.ballotId) && (this.leaderId == y.leaderId))
+		{
+			System.out.println("Comparing two equal ballots in greaterThan(Ballot y).");
+			System.out.println("Exiting.");
+			System.exit(-1);
+		}
+		
+		// A ballot will be (ballotId, leaderId), and two ballots
+		// will be compared lexicographically.
+		
+		// Check ballot ID first.
+		if (this.ballotId > y.ballotId)
+		{
+			// y's ballot ID is smaller.
+			return true;
+		}
+		else if (this.ballotId < y.ballotId)
+		{
+			// y's ballot ID is larger.
+			return false;
+		}
+		else
+		{
+			// y's ballot ID is equal. Resort to the leader ID.
+			// Leader ID's are totally ordered, so they cannot be
+			// equal => this will decide for certain.
+			if (this.leaderId > y.leaderId)
+			{
+				// y's leader ID is smaller.
+				return true;
+			}
+			else
+			{
+				// y'd leader ID is larger, since total ordering of leader IDs.
+				return false;
+			}
+		}
+	}
+	
+	@Override
+	public String toString()
+	{
+		String retVal = "";
+		retVal += "Ballot: <ballotId = " + this.ballotId + ", leaderId = " 
+				+ this.leaderId + ">";
+		return retVal;
+	}
+	
+	public int getLeaderId()
+	{
+		return this.leaderId;
+	}
+	
+	public int getBallotId()
+	{
+		return this.ballotId;
 	}
 }
