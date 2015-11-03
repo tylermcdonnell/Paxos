@@ -48,4 +48,29 @@ public class Command implements Serializable
 		
 		return retVal;
 	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if (o == null)
+		{
+			return false;
+		}
+		
+		if (o instanceof Command)
+		{
+			Command c = (Command) o;
+			
+			boolean clientIdEqual = this.getClientId() == c.getClientId();
+			boolean cidEqual = this.getCommandId() == c.getCommandId();
+			boolean cmdEqual = this.getOperation().equals(c.getOperation());
+			
+			if (clientIdEqual && cidEqual && cmdEqual)
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
 }
