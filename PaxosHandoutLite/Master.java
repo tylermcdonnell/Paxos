@@ -6,9 +6,12 @@ import java.util.LinkedList;
 import java.util.Scanner;
 
 import client.Client;
+import client.Command;
 import framework.Config;
 import framework.NetController;
+import message.Decision;
 import message.Message;
+import message.Proposal;
 import message.Request;
 import server.Server;
 
@@ -47,6 +50,9 @@ public class Master {
   public static void main(String [] args) {
     Scanner scan = new Scanner(System.in);
     int numNodes, numClients;
+    
+    // Added by Mike.
+    int serverIndex;
     
     while (scan.hasNextLine()) {
       String [] inputLine = scan.nextLine().split(" ");
@@ -140,10 +146,19 @@ public class Master {
         // Added by Mike.
         case "ServQueueTest":
         	
+        	start(2, 2);
+        	
         	// Make sure server queues are working nicely.
-        	int serverIndex = Integer.parseInt(inputLine[1]);
+        	serverIndex = Integer.parseInt(inputLine[1]);
         	serverQueues.get(serverIndex).add("Hello server " + serverIndex);
         	
+        	break;
+        	
+        // Added by Mike.
+        case "sendServerDecisionTest":
+        	
+        	sendServerDecisionTest();
+
         	break;
       }
     }
@@ -330,5 +345,26 @@ public class Master {
     	{
     	}
     		System.exit(-1);
+	}
+	
+	
+	private static void sendServerDecisionTest()
+	{
+		start (2, 2);
+    	
+    	// Send the server a fake decision.
+    	int serverIndex = 1;
+    	
+    	// Send from client 0 WLOG (doesn't matter who sends it).
+    	// Should be added to decisions.
+    	Message m = new Decision(new Proposal(1, new Command(0, 0, "HEY LOL")));
+    	Master.netControllers.get(0).sendMsgToServer(serverIndex, m);
+    	
+    	// Should be added to decisions.
+		Message m2 = new Decision(new Proposal(1, new Command(0, 0, "HEY LAWL")));
+		Master.netControllers.get(0).sendMsgToServer(serverIndex, m2);
+		
+		// Should not be added to decisions.
+		Master.netControllers.get(0).sendMsgToServer(serverIndex, m);
 	}
 }
