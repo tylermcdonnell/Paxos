@@ -151,30 +151,113 @@ public class Replica
 	
 	
 	/**
-	 * // TODO
-	 * @param p
+	 * Propose the command p.  This is the propose(p) replica function
+	 * from the paper.
+	 * 
+	 * @param p, the Command being proposed.
 	 */
 	private void propose(Command p)
-	{
-		// TODO
-		
+	{	
 		// (1) Check if there was a decision for this command yet.
-		// TODO
-		//if (! this.decisions contains p)
-		//{
+		if (!isDecisionWithCommand(p))
+		{
 		// (2) Find lowest unused slow number s'.
 		// This means finding the lowest unused slot number in the union
 		// of this.decisions and this.proposals sets.
-		// TODO
-		// int lowestSlotNum = getLowestSlotNum();
+		int lowestSlotNum = getLowestSlotNum();
+		
+		System.out.println("LOWEST SLOT NUMBER: " + lowestSlotNum + " for: " + p);
 		
 		// (3) Add <s', p> to this replica's set of proposals.
-		// TODO
-		// proposals.add(new Proposal(lowestSlotNum, p));
+		Proposal newProposal = new Proposal(lowestSlotNum, p);
+		this.proposals.add(newProposal);
 		
 		// (4) Send <"propose", s', p> to all leaders.
 		// TODO
-		//}
+		System.out.println("Sending to leaders: " + newProposal);
+		}
+	}
+	
+	
+	/**
+	 * Returns the lowest unused slot number (in the union of this
+	 * replica's proposals decisions sets).
+	 * 
+	 * @return the lowest unused slot number (in the union of this
+	 * replica's proposals decisions sets).
+	 */
+	private int getLowestSlotNum()
+	{
+		// Convert all Decisions into proposals, and merge the proposals
+		// and decisions sets (create a master set of pure proposals).
+		ArrayList<Proposal> masterSet = new ArrayList<Proposal>();
+		
+		// Add all Proposals in the proposals set.
+		masterSet.addAll(this.proposals);
+		
+		// Add all Decisions in the decisions set.  First, convert all
+		// Decisions to Proposals.
+		for (int i = 0; i < this.decisions.size(); i++)
+		{
+			Decision d = this.decisions.get(i);
+			Proposal p = d.getProposal();
+			masterSet.add(p);
+		}
+		
+		// Find the lowest slot number and return it.
+		int lowestSlotNumber = 1;
+		while (true)
+		{
+			boolean found = false;
+			
+			// Does the master set contain this lowestSlotNumber?
+			for (int i = 0; i < masterSet.size(); i++)
+			{
+				if (masterSet.get(i).getSlotNum() == lowestSlotNumber)
+				{
+					// We found it. Stop looking. Continue searching
+					// with the next slot number.
+					found = true;
+					break;
+				}
+			}
+			
+			if (found)
+			{
+				lowestSlotNumber++;
+			}
+			else
+			{
+				break;
+			}
+		}
+		
+		return lowestSlotNumber;
+	}
+	
+	
+	/**
+	 * Returns true iff there is a Decision with the given Command in
+	 * this replica's decision set.
+	 * 
+	 * @param command, the given Command.
+	 * 
+	 * @return true iff there is a Decision with the given Command in
+	 * this replica's decision set.
+	 */
+	private boolean isDecisionWithCommand(Command command)
+	{
+		for (int i = 0; i < this.decisions.size(); i++)
+		{
+			Decision currDecision = this.decisions.get(i);
+			Command currCommand = currDecision.getProposal().getCommand();
+			if (currCommand.equals(command))
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	
