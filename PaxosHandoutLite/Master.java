@@ -336,15 +336,6 @@ public class Master {
     	Master.serverProcesses.get(1).testClientSend("Hello client 1 from server 1", 1);
     	Master.serverProcesses.get(1).testServerSend("Hello server 0 from server 1", 0);
     	Master.serverProcesses.get(1).testServerSend("Hello server 1 from server 1", 1);
-    	
-    	try
-    	{
-    		Thread.sleep(2000);
-    	}
-    	catch (InterruptedException e)
-    	{
-    	}
-    		System.exit(-1);
 	}
 	
 	
