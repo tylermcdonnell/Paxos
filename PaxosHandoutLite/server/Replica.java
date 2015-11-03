@@ -17,24 +17,24 @@ import message.Request;
 public class Replica
 {
 	// Let this replica be p. This is p.proposals.
-	// A set of <slot number, command> pairs for proposals that the replica
-	// has made in the past (initially empty).
+	// This replica's set of <slot number, command> pairs for proposals 
+	// that this replica has made in the past (initially empty).
 	private ArrayList<Proposal> proposals;
 	
 	// Let this replica be p. This is p.decisions.
-	// Another set of <slot number, command> pairs for decided slots
+	// This replica's set of <slot number, command> pairs for decided slots
 	// (initially empty).
 	private ArrayList<Decision> decisions;
 	
 	// Let this replica be p. This is p.slot_num.
-	// The replica's current slot number (equivalent to the version
+	// This replica's current slot number (equivalent to the version
 	// number of the state, and initially 1). It contains the index
 	// of the next slot for which it needs to learn a decision before
 	// it can update its copy of the application state.
 	private int slot_num;
 		
 	// Let this replica be p. This is p.state.
-	// The replica's copy of the application state.  All replicas start
+	// This replica's copy of the application state.  All replicas start
 	// with the same initial application state.
 	private State state;
 	
@@ -45,8 +45,13 @@ public class Replica
 	{
 		this.proposals = new ArrayList<Proposal>();
 		this.decisions = new ArrayList<Decision>();
+		
+		// The next slot to fill at initialization is 1.
 		this.slot_num = 1;
+		
+		// All replicas start with the same initial state.
 		this.state = new State();
+		
 		this.serverId = serverId;
 	}
 	
@@ -65,8 +70,6 @@ public class Replica
 			Request request = (Request) message;
 			System.out.println("Replica " + this.serverId + " received " + request);
 			propose(request.getCommand());
-			
-			// TODO
 		}
 			
 		// IN PAPER: case <decision, s, p>
@@ -82,6 +85,11 @@ public class Replica
 																						// properly? I think yes.
 			{
 				this.decisions.add(decision);
+				System.out.println("Added");
+			}
+			else
+			{
+				System.out.println("NOT ADDED");
 			}
 			
 			// Keep performing decisions in slot_num as long as we can.
@@ -177,5 +185,6 @@ public class Replica
 	private void perform(Command p)
 	{
 		// TODO
+		this.slot_num++;
 	}
 }
