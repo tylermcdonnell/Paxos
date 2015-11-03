@@ -15,14 +15,14 @@ public class Command implements Serializable
 	private int clientId;
 	private int commandId;
 	
-	// Operations are just messages to add to the chat.
-	private String message;
+	// Operations are just messages to add to the chat for this project.
+	private String operation;
 	
-	public Command(int clientId, int commandId, String message)
+	public Command(int clientId, int commandId, String operation)
 	{
 		this.clientId = clientId;
 		this.commandId = commandId;
-		this.message = message;
+		this.operation = operation;
 	}
 	
 	public int getClientId()
@@ -35,16 +35,16 @@ public class Command implements Serializable
 		return this.commandId;
 	}
 	
-	public String getMessage()
+	public String getOperation()
 	{
-		return this.message;
+		return this.operation;
 	}
 	
 	public String toString()
 	{
 		String retVal = "";
 		retVal += "Command: <clientId: " + this.clientId + ", cid: " 
-				+ this.commandId + ", op: " + this.message + ">";
+				+ this.commandId + ", op: " + this.operation + ">";
 		
 		return retVal;
 	}
