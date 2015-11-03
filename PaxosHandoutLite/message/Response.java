@@ -32,4 +32,14 @@ public class Response extends Message
 		retVal += "Response: <cid: " + this.cid + " " + this.result + ">";
 		return retVal;
 	}
+	
+	public int getCid()
+	{
+		return this.cid;
+	}
+	
+	public State getResult()
+	{
+		return this.result;
+	}
 }
