@@ -376,10 +376,14 @@ public class Master {
     	
     	Ballot firstBallot0 = bg0.getCurrentBallot();
     	Ballot firstBallot1 = bg1.getCurrentBallot();
+    	
+    	System.out.println("x.equals(x) (true): " + firstBallot0.equals(firstBallot0));
+    	
     	System.out.println("x = First ballot leader 0: " + firstBallot0);
     	System.out.println("y = First ballot leader 1: " + firstBallot1);
     	
     	System.out.println("x > y (false): " + firstBallot0.greaterThan(firstBallot1));
+    	System.out.println("x.equals(y) (false): " + firstBallot0.equals(firstBallot1));
     	
     	Ballot secondBallot0 = bg0.getNextBallot();
     	Ballot secondBallot1 = bg1.getNextBallot();
