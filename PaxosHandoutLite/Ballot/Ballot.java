@@ -1,12 +1,17 @@
 package Ballot;
 
+import java.io.Serializable;
+
+import message.Decision;
+
 /**
  * A ballot in the Paxos algorithm.
  * @author Mike Feilbach
  *
  */
-public class Ballot
+public class Ballot implements Serializable
 {
+	private static final long serialVersionUID = 1L;
 	
 	// A ballot will be (ballotId, leaderId), and two ballots
 	// will be compared lexicographically.
@@ -91,6 +96,31 @@ public class Ballot
 				+ this.leaderId + ">";
 		return retVal;
 	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if (o == null)
+		{
+			return false;
+		}
+		
+		if (o instanceof Ballot)
+		{
+			Ballot b = (Ballot) o;
+			
+			boolean leaderIdEqual = this.leaderId == b.leaderId;
+			boolean ballotIdEqual = this.ballotId == b.ballotId;
+			
+			if (leaderIdEqual && ballotIdEqual)
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	
 	public int getLeaderId()
 	{
