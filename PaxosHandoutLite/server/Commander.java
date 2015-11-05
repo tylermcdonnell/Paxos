@@ -89,12 +89,14 @@ public class Commander
 			if (p2b.getBallot().equals(this.pvalue.getBallot()))
 			{	
 				// Testing.
+				/*
 				System.out.print("commander: OLD WAIT FOR LIST: ");
 				for (int i = 0; i < this.waitFor.size(); i++)
 				{
 					System.out.print(this.waitFor.get(i) + " ");
 				}
 				System.out.println();
+				*/
 				
 				// Take this acceptor's ID off of the wait for list.
 				// Make sure we remove the Integer object, not the element
@@ -103,12 +105,14 @@ public class Commander
 				this.waitFor.remove(new Integer(p2b.getAcceptorId()));
 				
 				// Testing.
+				/*
 				System.out.print("commander: NEW WAIT FOR LIST: ");
 				for (int i = 0; i < this.waitFor.size(); i++)
 				{
 					System.out.print(this.waitFor.get(i) + " ");
 				}
 				System.out.println();
+				*/
 				
 				// If |waitFor| < (|acceptors| / 2).  In other words, do we 
 				// have majority of acceptors saying they like our ballot?
