@@ -55,9 +55,37 @@ public class PValue implements Serializable
 	
 	
 	/**
+	 * Returns a deep copy of the given PValue.
+	 * 
+	 * @param pvalue, the given PValue.
+	 * 
+	 * @return a deep copy of the given PValue.
+	 */
+	public static PValue deepCopyPValue(PValue pvalue)
+	{	
+		// Values to deep copy:
+		Ballot oldBallot = pvalue.getBallot();
+		int oldSlotNumber = pvalue.getSlotNumber();
+		Command oldCommand = pvalue.getCommand();
+		
+		Ballot newBallot = Ballot.deepCopyBallot(oldBallot);
+		int newSlotNumber = oldSlotNumber;
+		Command newCommand = Command.deepCopyCommand(oldCommand);
+		
+		PValue newPValue = new PValue(newBallot, newSlotNumber, newCommand);
+		
+		// Testing.  Quick check.
+		System.out.println("NEW PVALUE, should be true: " + newPValue.equals(pvalue));
+		System.out.println("NEW PVALUE, should be false: " + (newPValue == pvalue));
+		
+		return newPValue;
+	}
+	
+	
+	/**
 	 * Returns a deep copy of the given ArrayList<PValue>.
 	 * 
-	 * @param ballot, the given ArrayList<PValue>.
+	 * @param pvalues, the given ArrayList<PValue>.
 	 * 
 	 * @return a deep copy of the given ArrayList<PValue>.
 	 */
