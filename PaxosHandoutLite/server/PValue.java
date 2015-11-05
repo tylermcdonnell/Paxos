@@ -90,6 +90,32 @@ public class PValue implements Serializable
 	}
 	
 	
+	/**
+	 * Returns the union of the given ArrayList<PValue> sets a and b.
+	 * 
+	 * @param a, set a.
+	 * @param b, set b.
+	 * 
+	 * @return the union of the given ArrayList<PValue> sets a and b.
+	 */
+	public static ArrayList<PValue> takeUnionOfPValueSets(ArrayList<PValue> a, ArrayList<PValue> b)
+	{
+		// Traverse set b.
+		for (int i = 0; i < b.size(); i++)
+		{
+			// If set a doesn't have this item, add it.
+			PValue currVal = b.get(i);
+			
+			if (!a.contains(currVal))
+			{
+				a.add(currVal);
+			}
+		}
+		
+		return a;
+	}
+	
+	
 	@Override
 	public boolean equals(Object o)
 	{
