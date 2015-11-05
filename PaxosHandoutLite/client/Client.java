@@ -130,10 +130,19 @@ public class Client implements Runnable {
 				// Testing.
 				//System.out.println("Client " + this.id + " got message on network: " + networkMessages.get(i));
 				
+				
+				//**************************************************************
+				//* Client received a Response from a Replica.
+				//**************************************************************
 				if (currMessage instanceof Response)
 				{
-					// Wait for <"response", cid, result> message from one of the replicas.
-					// TODO
+					Response response = (Response) currMessage;
+					
+					System.out.println("Client " + this.id + " received: " + response);
+					
+					// Testing.
+					// Print new state.
+					System.out.println(response.getResult());
 				}
 				
 				// Communication testing.
