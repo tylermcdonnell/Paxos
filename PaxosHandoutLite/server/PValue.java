@@ -75,8 +75,8 @@ public class PValue implements Serializable
 		PValue newPValue = new PValue(newBallot, newSlotNumber, newCommand);
 		
 		// Testing.  Quick check.
-		System.out.println("NEW PVALUE, should be true: " + newPValue.equals(pvalue));
-		System.out.println("NEW PVALUE, should be false: " + (newPValue == pvalue));
+		//System.out.println("NEW PVALUE, should be true: " + newPValue.equals(pvalue));
+		//System.out.println("NEW PVALUE, should be false: " + (newPValue == pvalue));
 		
 		return newPValue;
 	}
