@@ -53,7 +53,7 @@ public class Scout
 		
 		// Send p1a to all acceptors.  There is an acceptor on every server,
 		// including ours!
-		P1a p1a = new P1a(this.myLeaderId, this.myBallot);
+		P1a p1a = new P1a(this.myLeaderId, Ballot.deepCopyBallot(this.myBallot));
 		for (int i = 0; i < numServers; i++)
 		{
 			this.network.sendMsgToServer(i, p1a);
@@ -75,7 +75,7 @@ public class Scout
 		// Scouts only listen for p1b messages.
 		if (message instanceof P1b)
 		{
-			System.out.println("Scout got p1b");
+			System.out.println("Scout " + this.myLeaderId + " got p1b");
 			
 			P1b p1b = (P1b) message;
 			
@@ -86,7 +86,7 @@ public class Scout
 				// If the accepted set from p1b contains any pvalues that
 				// we don't have in our pvalue set currently, add them.  In other
 				// words, take the union of the pvalue and accepted sets.
-				this.pvalues = takeUnion(this.pvalues, p1b.getAcceptedSet());
+				this.pvalues = PValue.takeUnionOfPValueSets(this.pvalues, p1b.getAcceptedSet());
 				
 				// Testing.
 				/*System.out.print("OLD WAIT FOR LIST: ");
@@ -124,9 +124,12 @@ public class Scout
 					// scout's reference, and it will be eaten by the garbage
 					// collector.
 					Adopted adopted = new Adopted(Ballot.deepCopyBallot(this.myBallot), PValue.deepCopyPValueSet(this.pvalues));
+					
+					// send to leader: <adopted, b, pvalues>
 					this.network.sendMsgToServer(this.myLeaderId, adopted);
 					
 					// This Scout is done with its tasks.
+					// This is exit() in the Paper.
 					return false;
 				}
 			}
@@ -139,37 +142,12 @@ public class Scout
 				this.network.sendMsgToServer(this.myLeaderId, preempted);
 				
 				// This Scout is done with its tasks.
+				// This is exit() in the Paper.
 				return false;
 			}
 		}
 		
 		// Default, this code should never be reached.
 		return true;
-	}
-	
-	
-	/**
-	 * Returns the union of the given ArrayList<PValue> sets a and b.
-	 * 
-	 * @param a, set a.
-	 * @param b, set b.
-	 * 
-	 * @return the union of the given ArrayList<PValue> sets a and b.
-	 */
-	private ArrayList<PValue> takeUnion(ArrayList<PValue> a, ArrayList<PValue> b)
-	{
-		// Traverse set b.
-		for (int i = 0; i < b.size(); i++)
-		{
-			// If set a doesn't have this item, add it.
-			PValue currVal = b.get(i);
-			
-			if (!a.contains(currVal))
-			{
-				a.add(currVal);
-			}
-		}
-		
-		return a;
 	}
 }
