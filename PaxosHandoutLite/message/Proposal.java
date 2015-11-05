@@ -37,5 +37,34 @@ public class Proposal extends Message
 		retVal += "Proposal: <slotNum: " + this.slotNum + ", " + this.command.toString() + ">";
 		return retVal;
 	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if (o == null)
+		{
+			return false;
+		}
+		
+		if (o == this)
+		{
+			return true;
+		}
+		
+		if (o instanceof Proposal)
+		{
+			Proposal p = (Proposal) o;
+			
+			boolean slotNumEqual = (this.getSlotNum() == p.getSlotNum());
+			boolean cmdEqual = this.getCommand().equals(p.getCommand());
+			
+			if (slotNumEqual && cmdEqual)
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
 }
