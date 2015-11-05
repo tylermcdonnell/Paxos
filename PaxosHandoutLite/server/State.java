@@ -1,5 +1,6 @@
 package server;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -8,7 +9,9 @@ import java.util.ArrayList;
  * 
  * @author Mike Feilbach
  */
-public class State {
+public class State implements Serializable
+{
+	private static final long serialVersionUID = 1L;
 	
 	private ArrayList<String> state;
 	
@@ -25,5 +28,18 @@ public class State {
 	public void addToState(String s)
 	{
 		this.state.add(s);
+	}
+	
+	@Override
+	public String toString()
+	{
+		String retVal = "State: ";
+		
+		for (int i = 0; i < this.state.size(); i++)
+		{
+			retVal += this.state.get(i) + ", ";
+		}
+		
+		return retVal;
 	}
 }
