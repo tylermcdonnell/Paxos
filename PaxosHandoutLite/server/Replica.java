@@ -3,6 +3,7 @@ package server;
 import java.util.ArrayList;
 
 import client.Command;
+import framework.NetController;
 import message.Decision;
 import message.Message;
 import message.Proposal;
@@ -41,10 +42,19 @@ public class Replica
 	// What server this replica is on.
 	private int serverId;
 	
-	public Replica(int serverId)
+	// Number of servers in the system.
+	private int numServers;
+	
+	// My server's NetController.
+	private NetController network;
+	
+	public Replica(int serverId, int numServers, NetController network)
 	{
 		this.proposals = new ArrayList<Proposal>();
 		this.decisions = new ArrayList<Decision>();
+		
+		// Number of servers in the system.
+		this.numServers = numServers;
 		
 		// The next slot to fill at initialization is 1.
 		this.slot_num = 1;
@@ -53,6 +63,7 @@ public class Replica
 		this.state = new State();
 		
 		this.serverId = serverId;
+		this.network = network;
 	}
 	
 	
@@ -80,16 +91,9 @@ public class Replica
 			
 			// Add to the local list of decisions, only if we don't already
 			// have it.
-			if (!this.decisions.contains(decision))										// Do we have to implement an equals
-																						// method for Decision to use contains()
-																						// properly? I think yes.
+			if (!this.decisions.contains(decision))
 			{
 				this.decisions.add(decision);
-				System.out.println("Added");
-			}
-			else
-			{
-				System.out.println("NOT ADDED");
 			}
 			
 			// Keep performing decisions in slot_num as long as we can.
@@ -161,20 +165,35 @@ public class Replica
 		// (1) Check if there was a decision for this command yet.
 		if (!isDecisionWithCommand(p))
 		{
-		// (2) Find lowest unused slow number s'.
-		// This means finding the lowest unused slot number in the union
-		// of this.decisions and this.proposals sets.
-		int lowestSlotNum = getLowestSlotNum();
+			// (2) Find lowest unused slow number s'.
+			// This means finding the lowest unused slot number in the union
+			// of this.decisions and this.proposals sets.
+			int lowestSlotNum = getLowestSlotNum();
 		
-		System.out.println("LOWEST SLOT NUMBER: " + lowestSlotNum + " for: " + p);
+			//System.out.println("LOWEST SLOT NUMBER: " + lowestSlotNum + " for: " + p);
 		
-		// (3) Add <s', p> to this replica's set of proposals.
-		Proposal newProposal = new Proposal(lowestSlotNum, p);
-		this.proposals.add(newProposal);
+			// (3) Add <s', p> to this replica's set of proposals.
+			Proposal newProposal = new Proposal(lowestSlotNum, p);
+			this.proposals.add(newProposal);
 		
-		// (4) Send <"propose", s', p> to all leaders.
-		// TODO
-		System.out.println("Sending to leaders: " + newProposal);
+			// (4) Send <"propose", s', p> to all leaders.
+			// TODO
+			sendProposalToAllLeaders(newProposal);
+		}
+	}
+	
+	
+	/**
+	 * Send the given proposal to all leaders.
+	 * 
+	 * @param p, the given proposal.
+	 */
+	private void sendProposalToAllLeaders(Proposal p)
+	{
+		System.out.println("Sending to leaders: " + p);
+		for (int i = 0; i < this.numServers; i++)
+		{
+			this.network.sendMsgToServer(i, p);
 		}
 	}
 	

@@ -38,6 +38,9 @@ public class Server implements Runnable {
 	// Buffered queue commands sent to client from the master.
 	private LinkedList<String> serverReceiveQueue;
 	
+	// Number of servers in the system.
+	private int numServers;
+	
 	
 	/**
 	 * Constructor.
@@ -45,14 +48,15 @@ public class Server implements Runnable {
 	 * @param id, the ID of this server.
 	 * @param nc, the NetController for this server.
 	 */
-	public Server(int id, NetController nc, LinkedList<String> serverReceiveQueue)
+	public Server(int id, NetController nc, LinkedList<String> serverReceiveQueue, int numServers)
 	{
 		this.id = id;
+		this.numServers = numServers;
 		this.network = nc;
 		this.serverReceiveQueue = serverReceiveQueue;
-		this.replica = new Replica(this.id);
-		this.leader = new Leader(this.id);
-		this.acceptor = new Acceptor(this.id);
+		this.replica = new Replica(id, numServers, nc);
+		this.leader = new Leader(id, numServers, nc);
+		this.acceptor = new Acceptor(id, nc);
 	}
 	
 	@Override
@@ -87,6 +91,9 @@ public class Server implements Runnable {
 			for (int i = 0; i < networkMessages.size(); i++)
 			{
 				Message currMessage = networkMessages.get(i);
+				
+				// Testing.
+				//System.out.println("Server " + this.id + " received: " + currMessage);
 				
 				this.replica.runTasks(currMessage);
 				this.leader.runTasks(currMessage);
