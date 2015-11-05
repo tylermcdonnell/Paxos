@@ -1,6 +1,7 @@
 package message;
 
 import server.State;
+import server.StateEntry;
 
 /**
  * A response message.  Replicas send response messages to clients to 
@@ -15,14 +16,14 @@ public class Response extends Message
 	// The cid of the command that was completed.
 	private int cid;
 	
-	// The resulting state after the operation of this command
+	// The resulting state entry after the operation of this command
 	// was applied.
-	private State result;
+	private StateEntry result;
 	
-	public Response(int cid, State resultingState)
+	public Response(int cid, StateEntry stateEntry)
 	{
 		this.cid = cid;
-		this.result = resultingState;
+		this.result = stateEntry;
 	}
 	
 	@Override
@@ -38,7 +39,7 @@ public class Response extends Message
 		return this.cid;
 	}
 	
-	public State getResult()
+	public StateEntry getResult()
 	{
 		return this.result;
 	}

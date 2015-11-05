@@ -201,18 +201,13 @@ public class Replica
 		
 			//System.out.println("LOWEST SLOT NUMBER: " + lowestSlotNum + " for: " + p);
 		
-			// (3) Add <s', p> to this replica's set of proposals.
-			// TODO is it possible to have the same proposal proposed? Do we need to take the
-			// union (as below), or can we just blindly add it to the list?
+			// (3) Add <s', p> to this replica's set of proposals.  Since this proposal
+			// has a unique slot number, we can just add it -- we don't need to take
+			// the union necessarily.
 			Proposal newProposal = new Proposal(lowestSlotNum, p);
-			
-			if (!this.proposals.contains(newProposal))
-			{
-				this.proposals.add(newProposal);
-			}
+			this.proposals.add(newProposal);
 		
 			// (4) Send <"propose", s', p> to all leaders.
-			// TODO -- Which leaders?
 			sendProposalToAllLeaders(newProposal);
 		}
 	}
@@ -346,13 +341,14 @@ public class Replica
 		// Else, we have not performed this command yet. Let's do it.
 		
 		// Update state.
-		this.state.addToState(p.getOperation());
+		StateEntry result = new StateEntry(p, this.slot_num);
+		this.state.addToState(result);
 		
 		// Update slot number to do next.
 		this.slot_num++;
 		
 		// Send clients the update.
-		Response response = new Response(p.getCommandId(), this.state);
+		Response response = new Response(p.getCommandId(), result);
 		this.network.sendMsgToClient(p.getClientId(), response);
 	}
 }

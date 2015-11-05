@@ -3,6 +3,8 @@ package server;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import client.Command;
+
 /**
  * A State from the Paxos algorithm (what p.state represents, where p is 
  * a replica).
@@ -13,21 +15,21 @@ public class State implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
-	private ArrayList<String> state;
+	private ArrayList<StateEntry> state;
 	
 	public State()
 	{
-		this.state = new ArrayList<String>();
+		this.state = new ArrayList<StateEntry>();
 	}
 	
-	public ArrayList<String> getState()
+	public ArrayList<StateEntry> getState()
 	{
 		return this.state;
 	}
 	
-	public void addToState(String s)
+	public void addToState(StateEntry stateEntry)
 	{
-		this.state.add(s);
+		this.state.add(stateEntry);
 	}
 	
 	@Override
