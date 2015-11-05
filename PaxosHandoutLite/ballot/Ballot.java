@@ -32,10 +32,10 @@ public class Ballot implements Serializable
 	/**
 	 * Create a Ballot with the given leader ID and ballot ID.
 	 */
-	public Ballot(int leaderId, int ballotId)
+	public Ballot(int ballotId, int leaderId)
 	{
-		this.leaderId = leaderId;
 		this.ballotId = ballotId;
+		this.leaderId = leaderId;
 	}
 	
 	
@@ -54,6 +54,8 @@ public class Ballot implements Serializable
 		if ((this.ballotId == y.ballotId) && (this.leaderId == y.leaderId))
 		{
 			System.out.println("Comparing two equal ballots in greaterThan(Ballot y).");
+			System.out.println("x: " + this);
+			System.out.println("y: " + y);
 			System.out.println("Exiting.");
 			System.exit(-1);
 		}
@@ -103,7 +105,7 @@ public class Ballot implements Serializable
 		int ballotId = ballot.getBallotId();
 		int leaderId = ballot.getLeaderId();
 		
-		Ballot newBallot = new Ballot(leaderId, ballotId);
+		Ballot newBallot = new Ballot(ballotId, leaderId);
 		
 		// Testing.  Quick check.
 		//System.out.println("NEW BALLOT, should be true: " + newBallot.equals(ballot));

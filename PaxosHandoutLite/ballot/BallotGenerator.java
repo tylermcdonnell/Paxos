@@ -38,7 +38,7 @@ public class BallotGenerator
 		int currBallotId = curr.getBallotId();
 		
 		// Create a ballot with the same leader ID, but the next ballot ID.
-		Ballot newBallot = new Ballot(this.leaderId, currBallotId + 1);
+		Ballot newBallot = new Ballot(currBallotId + 1, this.leaderId);
 		
 		// Store this ballot as our current ballot!
 		this.currBallot = newBallot;
