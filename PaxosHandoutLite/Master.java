@@ -102,6 +102,8 @@ public class Master {
              * Print out the client specified by clientIndex's chat history
              * in the format described on the handout.	     
              */
+            Master.clientProcesses.get(clientIndex).printChatLog();
+            
             break;
             
         case "allClear":
@@ -119,6 +121,7 @@ public class Master {
              * Immediately crash the server specified by nodeIndex
              */
             Master.serverThreads.get(nodeIndex).stop();
+            
             break;
             
         case "restartServer":
