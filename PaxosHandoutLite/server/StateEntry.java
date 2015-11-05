@@ -40,4 +40,34 @@ public class StateEntry implements Serializable
 		return retVal;
 	}
 	
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if (o == null)
+		{
+			return false;
+		}
+		
+		if (o == this)
+		{
+			return true;
+		}
+		
+		if (o instanceof StateEntry)
+		{
+			StateEntry s = (StateEntry) o;
+			
+			boolean slotNumEqual = this.getSlotNumber() == s.getSlotNumber();
+			boolean cmdEqual = this.getCommand().equals(s.getCommand());
+			
+			if (slotNumEqual && cmdEqual)
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 }
