@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-import Ballot.Ballot;
-import Ballot.BallotGenerator;
+import ballot.Ballot;
+import ballot.BallotGenerator;
 import client.Client;
 import client.Command;
 import framework.Config;
@@ -169,8 +169,24 @@ public class Master {
         	ballotTest();
         	
         	break;
-      }
-    }
+      
+      // Added by Mike.
+      case "test":
+    	  
+    	  test();
+    	  
+    	  break;
+    	  
+      } // End switch
+    } // End while
+  } // End main
+  
+  private static void test()
+  {
+	  start(1, 1);
+	  
+	  // Send the client the message.
+      clientProcesses.get(0).giveClientCommand("hi");
   }
   
   
@@ -197,7 +213,7 @@ public class Master {
     	  serverQueues.add(serverQueue);
     	  
     	  // Pass in ID of this server.
-    	  Server server = new Server(i, getServerNetController(i), serverQueue);
+    	  Server server = new Server(i, getServerNetController(i), serverQueue, Master.numberServers);
     	  Thread serverThread = new Thread(server);
     	  serverThread.start();
       	
