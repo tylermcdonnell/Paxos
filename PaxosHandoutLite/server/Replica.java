@@ -195,6 +195,7 @@ public class Replica
 		for (int i = 0; i < this.numServers; i++)
 		{
 			this.network.sendMsgToServer(i, p);
+			this.network.sendMsgToServer(i, p);
 		}
 	}
 	
