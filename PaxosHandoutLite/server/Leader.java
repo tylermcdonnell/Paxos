@@ -98,14 +98,53 @@ public class Leader
 	
 	public void runTasks(Message message)
 	{	
+		
+		//**********************************************************************
+		//* Leader received a Proposal from a Replica.
+		//**********************************************************************
 		if (message instanceof Proposal)
 		{
 			Proposal proposal = (Proposal) message;
 			System.out.println("Leader " + this.serverId + " received " + proposal);
 			
-			// TODO
+			// Find out if we have a proposal for this slot number already.
+			// If so, we can't consider this new proposal.
+			boolean existsCmdForThisSlot = false;
+			for (int i = 0; i < this.proposals.size(); i++)
+			{
+				Proposal existingProposal = this.proposals.get(i);
+				
+				if (existingProposal.getSlotNum() == proposal.getSlotNum())
+				{
+					existsCmdForThisSlot = true;
+				}
+			}
+			
+			// If there is no command for this slot number already.
+			if (existsCmdForThisSlot == false)
+			{
+				// Take union of proposals and this new proposal.
+				if (!this.proposals.contains(proposal))
+				{
+					this.proposals.add(proposal);
+					System.out.println("Proposal added: " + proposal);
+				}
+				
+				if (this.active)
+				{
+					// Create a commander for this new proposal.
+					PValue newPValue = new PValue(this.currBallot, proposal.getSlotNum(), proposal.getCommand());
+					
+					Commander newCommander = new Commander(this.serverId, this.network, this.numServers, newPValue, this.commanders.size());
+					this.commanders.add(newCommander);
+				}
+			}
 		}
 		
+		
+		//**********************************************************************
+		//* Leader received Adopted from a Scout.
+		//**********************************************************************
 		if (message instanceof Adopted)
 		{
 			Adopted adopted = (Adopted) message;
@@ -140,17 +179,23 @@ public class Leader
 			}
 			*/
 			
-			// TODO
 			// For all <s, p> \in proposals, spawn a Commander.
 			for (int i = 0; i < this.proposals.size(); i++)
 			{
 				Proposal currProposal = this.proposals.get(i);
+				PValue newPValue = new PValue(adopted.getBallot(), currProposal.getSlotNum(), currProposal.getCommand());
 				
+				Commander newCommander = new Commander(this.serverId, this.network, this.numServers, newPValue, this.commanders.size());
+				this.commanders.add(newCommander);
 			}
 			
 			this.active = true;
 		}
 		
+		
+		//**********************************************************************
+		//* Leader received Preempted from a Scout or Commander.
+		//**********************************************************************
 		if (message instanceof Preempted)
 		{
 			Preempted preempted = (Preempted) message;
@@ -159,8 +204,9 @@ public class Leader
 			// TODO
 		}
 	
-		
-		// If we have any Scouts, run their tasks.
+		//**********************************************************************
+		//* If we have any working Scouts, run their tasks.
+		//**********************************************************************
 		for (int i = 0; i < this.scouts.size(); i++)
 		{
 			Scout currScout = this.scouts.get(i);
@@ -176,6 +222,28 @@ public class Leader
 				{
 					System.out.println("Nulled out Scout of ID: " + scoutReturnValue);
 					currScout = null;
+				}
+			}
+		}
+		
+		//**********************************************************************
+		//* If we have any working Commanders, run their tasks.
+		//**********************************************************************
+		for (int i = 0; i < this.commanders.size(); i++)
+		{
+			Commander currCommander = this.commanders.get(i);
+			
+			// If we haven't nulled out this Commander, it still has work to do.
+			if (currCommander != null)
+			{
+				int commanderReturnValue = currCommander.runCommander(message);
+				
+				// If Commander returned its ID, null it out in our list -- it's
+				// done with all its tasks and can be garbage collected.
+				if (commanderReturnValue != -1)
+				{
+					System.out.println("Nulled out Commander of ID: " + commanderReturnValue);
+					currCommander = null;
 				}
 			}
 		}
