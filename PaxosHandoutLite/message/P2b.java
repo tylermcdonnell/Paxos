@@ -1,6 +1,6 @@
 package message;
 
-import Ballot.Ballot;
+import ballot.Ballot;
 
 
 /**

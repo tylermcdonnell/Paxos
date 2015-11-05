@@ -2,8 +2,8 @@ package message;
 
 import java.util.ArrayList;
 
+import ballot.Ballot;
 import server.PValue;
-import Ballot.Ballot;
 
 
 /**
