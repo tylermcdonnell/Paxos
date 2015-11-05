@@ -35,17 +35,27 @@ public class Leader
 	private boolean active;
 	private ArrayList<Proposal> proposals;
 	
-	// Not sure if there will need to be more than one scout, but for now, just have one.
-	private Scout scout;
-	
 	// My server's NetController.
 	private NetController network;
 	
 	// Number of servers in the system.
 	private int numServers;
 	
+	// A list of the Commanders that have been spawned.  When a Commander
+	// is spawned, its unique ID will be the index of the element that
+	// will contain its reference in this list.
+	private ArrayList<Commander> commanders;
+	
+	// A list of the Scouts that have been spawned.  When a Scout
+	// is spawned, its unique ID will be the index of the element that
+	// will contain its reference in this list.
+	private ArrayList<Scout> scouts;
+	
 	public Leader(int serverId, int numServers, NetController network)
 	{
+		this.commanders = new ArrayList<Commander>();
+		this.scouts = new ArrayList<Scout>();
+		
 		this.serverId = serverId;
 		
 		// Set up initial ballot and ballot generator.
@@ -71,17 +81,18 @@ public class Leader
 		// is located at.  When a scout of ID n returns false, null it out in the list.
 		// Keep giving scouts increasing numbers, never need to delete scouts for
 		// our purposes.  But, for now, just use one scout.
+		// TODO redo comments above.
 		if (this.serverId == 0)
 		{
 			this.isCurrentLeader = true;
 			
 			// Spawn a Scout for the initial ballot.
-			this.scout = new Scout(this.currBallot, serverId, network, numServers);
+			Scout firstScout = new Scout(this.currBallot, serverId, network, numServers, this.scouts.size());
+			this.scouts.add(firstScout);
 		}
 		else
 		{
 			this.isCurrentLeader = false;
-			this.scout = null;
 		}
 	}
 	
@@ -110,19 +121,32 @@ public class Leader
 			// the maximum ballot number in pvals by invoking pmax."
 			ArrayList<Proposal> pmax_pvals = pmax(pvals);
 			
-			// Testing.
 			/*
+			System.out.println("pmax_pvals:");
 			for (int i = 0; i < pmax_pvals.size(); i++)
 			{
 				System.out.println("slotNum: " + pmax_pvals.get(i).getSlotNum() + ", " + pmax_pvals.get(i));
 			}
 			*/
-			
-			// proposals = proposals (\oplus) pmax(pvals) from the Paper.
+						
+			// Perform proposals = proposals (\oplus) pmax(pvals) from the Paper.
 			this.proposals = oplus(this.proposals, pmax_pvals);
 			
+			/*
+			System.out.println("proposals after \\oplus:");
+			for (int i = 0; i < this.proposals.size(); i++)
+			{
+				System.out.println("slotNum: " + this.proposals.get(i).getSlotNum() + ", " + this.proposals.get(i));
+			}
+			*/
+			
 			// TODO
-			// For all <s, p> \in proposals, spawn a Commander 
+			// For all <s, p> \in proposals, spawn a Commander.
+			for (int i = 0; i < this.proposals.size(); i++)
+			{
+				Proposal currProposal = this.proposals.get(i);
+				
+			}
 			
 			this.active = true;
 		}
@@ -136,16 +160,23 @@ public class Leader
 		}
 	
 		
-		// If we have a scout out, run its tasks.
-		if (this.scout != null)
+		// If we have any Scouts, run their tasks.
+		for (int i = 0; i < this.scouts.size(); i++)
 		{
-			boolean stillRunning = this.scout.runScout(message);
+			Scout currScout = this.scouts.get(i);
 			
-			if (stillRunning == false)
+			// If we haven't nulled out this Scout, it still has work to do.
+			if (currScout != null)
 			{
-				// Don't run anymore.
-				// TODO use list instead. See comments in an above TODO.
-				this.scout = null;
+				int scoutReturnValue = currScout.runScout(message);
+				
+				// If Scout returned its ID, null it out in our list -- it's
+				// done with all its tasks and can be garbage collected.
+				if (scoutReturnValue != -1)
+				{
+					System.out.println("Nulled out Scout of ID: " + scoutReturnValue);
+					currScout = null;
+				}
 			}
 		}
 	}
@@ -154,8 +185,8 @@ public class Leader
 	/**
 	 * Performs x \oplus y (from the Paper).
 	 * 
-	 * @param x
-	 * @param y
+	 * @param x, a List of Proposals.
+	 * @param y, a List of Proposals.
 	 * 
 	 * @return x \oplus y
 	 */
@@ -163,16 +194,76 @@ public class Leader
 	{
 		ArrayList<Proposal> result = new ArrayList<Proposal>();
 		
+		// Step (1): Add all elements of y.
+		result.addAll(y);
+		
 		// Informally: if there is a mapping for a slot number in y, overwrite
 		// the mapping in x, if there is no mapping for a slot number in y,
 		// but there is one in x, keep the one in x.
 		
-		// Step (1): Find all slot number mappings that are in x but not in y.
-		// Add them to the result list.
+		// Step (2): Find all slot number mappings that are in x but not in y.
+		// Add them to the result list, then we're done.
 		
-		//for (int i = 0; )
+		// Get slot numbers in x.
+		ArrayList<Integer> slotNumsInX = new ArrayList<Integer>();
+		for (int i = 0; i < x.size(); i++)
+		{
+			Integer currSlotNum = x.get(i).getSlotNum();
+			
+			if (!slotNumsInX.contains(currSlotNum))
+			{
+				slotNumsInX.add(currSlotNum);
+			}
+		}
 		
-		// TODO
+		System.out.print("SlotNums in x: ");
+		for (int i = 0; i < slotNumsInX.size(); i++)
+		{
+			System.out.print(slotNumsInX.get(i) + ", ");
+		}
+		
+		// Get slot numbers in y.
+		ArrayList<Integer> slotNumsInY = new ArrayList<Integer>();
+		for (int i = 0; i < y.size(); i++)
+		{
+			Integer currSlotNum = y.get(i).getSlotNum();
+			if (!slotNumsInY.contains(currSlotNum))
+			{
+				slotNumsInY.add(currSlotNum);
+			}
+		}
+		
+		System.out.print("SlotNums in y: ");
+		for (int i = 0; i < slotNumsInY.size(); i++)
+		{
+			System.out.print(slotNumsInY.get(i) + ", ");
+		}
+		
+		
+		// For each slot number in x's elements, check if y has an element
+		// with it.  If it doesn't add the Proposal corresponding to this
+		// slot number in x's set.
+		for (int i = 0; i < slotNumsInX.size(); i++)
+		{
+			Integer xSlotNum = slotNumsInX.get(i);
+			
+			if (!slotNumsInY.contains(xSlotNum))
+			{
+				System.out.println("Slot number NOT in y: " + xSlotNum);
+				
+				// Add the elements of x with this slot number to the
+				// result list.  There should only be one? // TODO //  ///  / / / / / / /// // // /  // // // // // // // // 
+				for (int j = 0; j < x.size(); j++)
+				{
+					Proposal currProposal = x.get(j);
+					if (currProposal.getSlotNum() == (int) xSlotNum)
+					{
+						result.add(currProposal);
+					}
+				}
+			}
+		}
+		
 		return result;
 	}
 	
@@ -264,3 +355,41 @@ public class Leader
 	}
 	
 }
+
+
+//******************************************************************************
+//* TESTING CODE
+//******************************************************************************
+
+/*
+// Testing.
+// Ballot, slotNum, Command
+PValue p0 = new PValue(new Ballot(0, 0), 0, new Command(0, 0, "HEY"));
+PValue p1 = new PValue(new Ballot(1, 0), 0, new Command(0, 0, "YO"));
+PValue p2 = new PValue(new Ballot(0, 1), 0, new Command(0, 0, "SUP"));
+PValue p6 = new PValue(new Ballot(1, 1), 0, new Command(0, 0, "MIKE"));			
+PValue p3 = new PValue(new Ballot(0, 12), 2, new Command(0, 0, "UPENN"));
+PValue p4 = new PValue(new Ballot(45, 1), 2, new Command(0, 0, "YALE"));
+PValue p5 = new PValue(new Ballot(0, 1), 68, new Command(0, 0, "UTEXAS"));
+			
+pvals.add(p0);
+pvals.add(p1);
+pvals.add(p2);
+pvals.add(p3);
+pvals.add(p4);
+pvals.add(p5);
+pvals.add(p6);
+
+this.proposals.add(new Proposal(0, new Command(0, 0, "MIKE_X")));
+this.proposals.add(new Proposal(1, new Command(0, 0, "LONGHORN")));
+this.proposals.add(new Proposal(345, new Command(0, 0, "DOYOULIFTBRO?")));
+this.proposals.add(new Proposal(68, new Command(0, 0, "UTEXAS_EDITTED")));
+
+// proposals \oplus pmax(pvals) should return:
+// Slot 0: MIKE
+// Slot 2: YALE
+// Slot 68: UTEXAS
+// Slot 1: LONGHORN
+// Slot 345: DOYOULIFTBRO?
+
+*/
