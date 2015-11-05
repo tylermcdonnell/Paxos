@@ -8,6 +8,7 @@ import message.Decision;
 import message.Message;
 import message.Proposal;
 import message.Request;
+import message.Response;
 
 
 /**
@@ -75,17 +76,25 @@ public class Replica
 	 */
 	public void runTasks(Message message)
 	{
-		// IN PAPER: case <request, p>
+		//**********************************************************************
+		//* Replica received Request from a client.
+		//**********************************************************************
 		if (message instanceof Request)
 		{
+			// IN PAPER: case <request, p>
 			Request request = (Request) message;
 			System.out.println("Replica " + this.serverId + " received " + request);
+			
 			propose(request.getCommand());
 		}
 			
-		// IN PAPER: case <decision, s, p>
+		
+		//**********************************************************************
+		//* Replica received Decision from a Commander.
+		//**********************************************************************
 		if (message instanceof Decision)
 		{
+			// IN PAPER: case <decision, s, p>
 			Decision decision = (Decision) message;
 			System.out.println("Replica " + this.serverId + " received " + decision);
 			
@@ -98,11 +107,12 @@ public class Replica
 			
 			// Keep performing decisions in slot_num as long as we can.
 			// Note: this decision may have to do with a higher slot than slot_num,
-			// since decisions can come from other replicas.  In fact, we may ave
+			// since decisions can come from other replicas.  In fact, we may have
 			// received a decision to a command we have never seen before.
 			while (hasDecisionWithSlotNum(this.slot_num) != null)
 			{
-				// This is the decision that has slot_num.
+				// This is the decision that has slot_num (which we will
+				// perform).
 				Decision d = hasDecisionWithSlotNum(this.slot_num);
 				
 				// Check if there are any proposals in proposals which
@@ -110,17 +120,36 @@ public class Replica
 				// not equal to this decision (the command is different).
 				// If so, re-propose this proposal so it can fill a higher
 				// slot in the future.
-				//if ()
-				//{
-				//	propose();
-				//}
-				// TODO
+				// TODO there can only be one max, right?  I think so.
+				
+				// Get all the proposals for this slot number.
+				ArrayList<Proposal> proposalsForSlotNum = new ArrayList<Proposal>();
+				for (int i = 0; i < this.proposals.size(); i++)
+				{
+					Proposal currProposal = this.proposals.get(i);
+					
+					if (currProposal.getSlotNum() == this.slot_num)
+					{
+						proposalsForSlotNum.add(currProposal);
+					}
+				}
+				
+				// TODO: This loop should only execute once if ever, since
+				// there should only be one proposal for any given slot in
+				// proposals.  Modify this later on.
+				for (int i = 0; i < proposalsForSlotNum.size(); i++)
+				{
+					Command currCommand = proposalsForSlotNum.get(i).getCommand();
+					Command decisionCommand = decision.getProposal().getCommand();
+					if (!currCommand.equals(decisionCommand))
+					{
+						propose(currCommand);
+					}
+				}
 				
 				// Perform the command of the decision.
 				perform(d.getProposal().getCommand());
 			}
-			
-			// TODO
 		}
 	}
 	
@@ -173,9 +202,14 @@ public class Replica
 			//System.out.println("LOWEST SLOT NUMBER: " + lowestSlotNum + " for: " + p);
 		
 			// (3) Add <s', p> to this replica's set of proposals.
+			// TODO is it possible to have the same proposal proposed? Do we need to take the
+			// union (as below), or can we just blindly add it to the list?
 			Proposal newProposal = new Proposal(lowestSlotNum, p);
-			this.proposals.add(newProposal);
-			// TODO: we need to take the union of proposals and the new proposal.  Is it okay just to add it? Or need more logic?
+			
+			if (!this.proposals.contains(newProposal))
+			{
+				this.proposals.add(newProposal);
+			}
 		
 			// (4) Send <"propose", s', p> to all leaders.
 			// TODO -- Which leaders?
@@ -191,7 +225,7 @@ public class Replica
 	 */
 	private void sendProposalToAllLeaders(Proposal p)
 	{
-		System.out.println("Sending to leaders: " + p);
+		System.out.println("Replica " + this.serverId + " sending to leaders: " + p);
 		for (int i = 0; i < this.numServers; i++)
 		{
 			this.network.sendMsgToServer(i, p);
@@ -282,15 +316,43 @@ public class Replica
 	
 	
 	/**
-	 * // TODO
-	 * @param p
+	 * Perform the command p.  This is the perform(p) replica function
+	 * from the paper.
+	 * 
+	 * @param p, the command being performed.
 	 */
 	private void perform(Command p)
 	{
-		// TODO
+		// If there exists a slot we have already executed a command for, and
+		// the command executed for that slot was the command p, don't execute
+		// any commands.  Why can this happen?  Different replicas can propose
+		// the same command for different slots, and thus the same command
+		// may be decided more than once.
+		for (int i = 0; i < this.decisions.size(); i++)
+		{
+			Decision currDecision = this.decisions.get(i);
+			
+			if (currDecision.getProposal().getCommand().equals(p))
+			{
+				if (currDecision.getProposal().getSlotNum() < this.slot_num)
+				{
+					// Skip this command, we've already done it.
+					this.slot_num++;
+					return;
+				}
+			}
+		}
+		
+		// Else, we have not performed this command yet. Let's do it.
+		
+		// Update state.
+		this.state.addToState(p.getOperation());
+		
+		// Update slot number to do next.
 		this.slot_num++;
 		
-		// TODO
-		// Serialize (make deep copy) of state before sending back to client K.
+		// Send clients the update.
+		Response response = new Response(p.getCommandId(), this.state);
+		this.network.sendMsgToClient(p.getClientId(), response);
 	}
 }
