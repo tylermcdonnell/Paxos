@@ -49,6 +49,29 @@ public class Command implements Serializable
 		return retVal;
 	}
 	
+	
+	/**
+	 * Returns a deep copy of the given Command.
+	 * 
+	 * @param command, the given Command.
+	 * 
+	 * @return a deep copy of the given Command.
+	 */
+	public static Command deepCopyCommand(Command command)
+	{
+		int newClientId = command.getClientId();
+		int newCommandId = command.getCommandId();
+		String newOperation = new String(command.getOperation());
+		
+		Command newCommand = new Command(newClientId, newCommandId, newOperation);
+		
+		// Testing.  Quick check.
+		//System.out.println("NEW COMMANAD, should be true: " + newCommand.equals(command));
+		//System.out.println("NEW COMMAND, should be false: " + (newCommand == command));
+		
+		return newCommand;
+	}
+	
 	@Override
 	public boolean equals(Object o)
 	{
@@ -63,9 +86,9 @@ public class Command implements Serializable
 			
 			boolean clientIdEqual = this.getClientId() == c.getClientId();
 			boolean cidEqual = this.getCommandId() == c.getCommandId();
-			boolean cmdEqual = this.getOperation().equals(c.getOperation());
+			boolean opEqual = this.getOperation().equals(c.getOperation());
 			
-			if (clientIdEqual && cidEqual && cmdEqual)
+			if (clientIdEqual && cidEqual && opEqual)
 			{
 				return true;
 			}
