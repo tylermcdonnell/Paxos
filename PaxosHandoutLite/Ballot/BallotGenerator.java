@@ -1,4 +1,4 @@
-package Ballot;
+package ballot;
 
 
 /**

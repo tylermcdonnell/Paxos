@@ -1,4 +1,4 @@
-package Ballot;
+package ballot;
 
 import java.io.Serializable;
 
@@ -87,6 +87,29 @@ public class Ballot implements Serializable
 			}
 		}
 	}
+	
+	
+	/**
+	 * Returns a deep copy of the given Ballot.
+	 * 
+	 * @param ballot, the given Ballot.
+	 * 
+	 * @return a deep copy of the given Ballot.
+	 */
+	public static Ballot deepCopyBallot(Ballot ballot)
+	{
+		int ballotId = ballot.getBallotId();
+		int leaderId = ballot.getLeaderId();
+		
+		Ballot newBallot = new Ballot(leaderId, ballotId);
+		
+		// Testing.  Quick check.
+		//System.out.println("NEW BALLOT, should be true: " + newBallot.equals(ballot));
+		//System.out.println("NEW BALLOT, should be false: " + (newBallot == ballot));
+		
+		return newBallot;
+	}
+	
 	
 	@Override
 	public String toString()
