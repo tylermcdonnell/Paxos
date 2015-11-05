@@ -175,9 +175,10 @@ public class Replica
 			// (3) Add <s', p> to this replica's set of proposals.
 			Proposal newProposal = new Proposal(lowestSlotNum, p);
 			this.proposals.add(newProposal);
+			// TODO: we need to take the union of proposals and the new proposal.  Is it okay just to add it? Or need more logic?
 		
 			// (4) Send <"propose", s', p> to all leaders.
-			// TODO
+			// TODO -- Which leaders?
 			sendProposalToAllLeaders(newProposal);
 		}
 	}
@@ -288,5 +289,8 @@ public class Replica
 	{
 		// TODO
 		this.slot_num++;
+		
+		// TODO
+		// Serialize (make deep copy) of state before sending back to client K.
 	}
 }
