@@ -127,7 +127,7 @@ public class Leader
 				if (!this.proposals.contains(proposal))
 				{
 					this.proposals.add(proposal);
-					System.out.println("Proposal added: " + proposal);
+					System.out.println("Leader " + this.serverId + " added Proposal: " + proposal);
 				}
 				
 				if (this.active)
@@ -137,6 +137,8 @@ public class Leader
 					
 					Commander newCommander = new Commander(this.serverId, this.network, this.numServers, newPValue, this.commanders.size());
 					this.commanders.add(newCommander);
+					
+					System.out.println("Leader " + this.serverId + " created Commander.");
 				}
 			}
 		}
@@ -221,7 +223,9 @@ public class Leader
 				if (scoutReturnValue != -1)
 				{
 					System.out.println("Nulled out Scout of ID: " + scoutReturnValue);
-					currScout = null;
+					
+					this.scouts.add(i, null);
+					this.scouts.remove(i + 1);
 				}
 			}
 		}
@@ -242,8 +246,10 @@ public class Leader
 				// done with all its tasks and can be garbage collected.
 				if (commanderReturnValue != -1)
 				{
-					System.out.println("Nulled out Commander of ID: " + commanderReturnValue);
-					currCommander = null;
+					System.out.println("Leader " + this.serverId + " nulled out Commander of ID: " + commanderReturnValue);
+					
+					this.commanders.add(i, null);
+					this.commanders.remove(i + 1);
 				}
 			}
 		}
