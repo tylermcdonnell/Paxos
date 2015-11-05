@@ -48,6 +48,9 @@ public class Acceptor
 	
 	public void runTasks(Message message)
 	{
+		//**********************************************************************
+		//* Acceptor received p1a from a Scout.
+		//**********************************************************************
 		if (message instanceof P1a)
 		{
 			P1a p1a = (P1a) message;
@@ -94,6 +97,10 @@ public class Acceptor
 			this.network.sendMsgToServer(p1a.getMyLeaderId(), p1b);
 		}
 		
+		
+		//**********************************************************************
+		//* Acceptor received p2a from a Commander.
+		//**********************************************************************
 		if (message instanceof P2a)
 		{
 			P2a p2a = (P2a) message;
@@ -114,7 +121,15 @@ public class Acceptor
 			{
 				// Current ballot is not "bottom."  Must actually compare it.
 				boolean ballotsEqual = this.currBallot.equals(commanderBallot);
-				boolean commanderBallotLarger = !this.currBallot.greaterThan(commanderBallot);
+				boolean commanderBallotLarger = false;
+				
+				// If ballots are equal, do not call greaterThan, it will terminate program
+				// if ballots are equal.
+				if (!ballotsEqual)
+				{
+					commanderBallotLarger = !this.currBallot.greaterThan(commanderBallot);
+				}
+				 
 				
 				if (ballotsEqual || commanderBallotLarger)
 				{
