@@ -41,6 +41,8 @@ public class Ballot implements Serializable
 	
 	/**
 	 * Returns true iff this Ballot is greater than Ballot y.
+	 * If two equal ballots are given, error message is printed and
+	 * program terminates.
 	 * 
 	 * @param y, Ballot y.
 	 * 
