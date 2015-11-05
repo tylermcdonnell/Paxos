@@ -22,6 +22,9 @@ import framework.NetController;
  */
 public class Commander
 {
+	// This Commander's unique ID in the eyes of the leader who spawned him.
+	private int uniqueId;
+	
 	// Initialized with IDs of all acceptors.
 	private ArrayList<Integer> waitFor;
 		
@@ -36,8 +39,9 @@ public class Commander
 		
 	private int myLeaderId;
 		
-	public Commander(int myLeaderId, NetController network, int numServers, PValue pvalue)
+	public Commander(int myLeaderId, NetController network, int numServers, PValue pvalue, int uniqueId)
 	{
+		this.uniqueId = uniqueId;
 		this.network = network;
 		this.numServers = numServers;
 		this.myLeaderId = myLeaderId;
@@ -62,16 +66,16 @@ public class Commander
 	
 	
 	/**
-	 * This commander's run method.  When it is done completing its tasks,
-	 * the method will return false, at which point this method should
-	 * not be called again for this given Commander object.
+	 * This Commanders's run method.  When it is done completing its tasks,
+	 * the method will return the Commander's unique ID, at which point this 
+	 * method should not be called again for this given Commander object.
 	 * 
-	 * @param message
+	 * @param message, the message to process.
 	 * 
-	 * @return false when this method should never be called again on this
-	 * Commander object.
+	 * @return -1, else the Commander's unique ID, at which point this 
+	 * method should not be called again for this given Commander object.
 	 */
-	public boolean runCommander(Message message)
+	public int runCommander(Message message)
 	{
 		// Commanders only listen for p2b messages.
 		if (message instanceof P2b)
@@ -128,7 +132,7 @@ public class Commander
 					
 					// This Commander is done with its tasks.
 					// This is exit() in the Paper.
-					return false;
+					return this.uniqueId;
 				}
 			}
 			else
@@ -141,11 +145,11 @@ public class Commander
 				
 				// This Commander is done with its tasks.
 				// This is exit() in the Paper.
-				return false;
+				return this.uniqueId;
 			}
 		}
 		
-		// Default code.  This should not be reachable.
-		return true;
+		// This Commander is not done with its tasks yet.
+		return -1;
 	}
 }
