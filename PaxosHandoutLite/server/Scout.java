@@ -18,6 +18,9 @@ import framework.NetController;
  */
 public class Scout
 {
+	// This scout's unique ID in the eyes of the leader who spawned him.
+	private int uniqueId;
+	
 	// Initialized with IDs of all acceptors.
 	private ArrayList<Integer> waitFor;
 	
@@ -33,8 +36,9 @@ public class Scout
 	
 	private Ballot myBallot;
 	
-	public Scout(Ballot ballot, int myLeaderId, NetController network, int numServers)
+	public Scout(Ballot ballot, int myLeaderId, NetController network, int numServers, int uniqueId)
 	{
+		this.uniqueId = uniqueId;
 		this.network = network;
 		this.numServers = numServers;
 		this.myLeaderId = myLeaderId;
@@ -62,15 +66,15 @@ public class Scout
 	
 	/**
 	 * This scout's run method.  When it is done completing its tasks,
-	 * the method will return false, at which point this method should
-	 * not be called again for this given Scout object.
+	 * the method will return the Scout's unique ID, at which point this 
+	 * method should not be called again for this given Scout object.
 	 * 
-	 * @param message
+	 * @param message, the message to process.
 	 * 
-	 * @return false when this method should never be called again on this
-	 * Scout object.
+	 * @return -1, else the Scout's unique ID, at which point this 
+	 * method should not be called again for this given Scout object.
 	 */
-	public boolean runScout(Message message)
+	public int runScout(Message message)
 	{
 		// Scouts only listen for p1b messages.
 		if (message instanceof P1b)
@@ -130,7 +134,7 @@ public class Scout
 					
 					// This Scout is done with its tasks.
 					// This is exit() in the Paper.
-					return false;
+					return this.uniqueId;
 				}
 			}
 			else
@@ -143,11 +147,11 @@ public class Scout
 				
 				// This Scout is done with its tasks.
 				// This is exit() in the Paper.
-				return false;
+				return this.uniqueId;
 			}
 		}
 		
-		// Default, this code should never be reached.
-		return true;
+		// This Scout is not done yet.
+		return -1;
 	}
 }
