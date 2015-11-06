@@ -101,7 +101,7 @@ public class Leader
 		// (NEW)
 		// Heart beat period = 1 second.
 		// Update system view period = 5 seconds.
-		this.hbg = new HeartBeatGenerator(serverId, network, numServers, 200, 1000);
+		this.hbg = new HeartBeatGenerator(serverId, network, numServers, 400, 2000);
 	}
 	
 	
