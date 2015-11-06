@@ -99,7 +99,7 @@ public class Replica
 			System.out.println("Replica " + this.serverId + " received " + decision);
 			
 			// Add to the local list of decisions, only if we don't already
-			// have it.
+			// have it.  Decisions can arrive multiple times.
 			if (!this.decisions.contains(decision))
 			{
 				this.decisions.add(decision);
