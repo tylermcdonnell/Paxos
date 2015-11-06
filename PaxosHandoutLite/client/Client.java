@@ -190,6 +190,10 @@ public class Client implements Runnable {
 		// Or is it just a logical number, like 0, 1, 2, 3... if we use the
 		// slot number, it may look like 0, 2, 45, 56...
 		
+		// TSM: Per Benny's Piazza post, it appears that the sequence number
+		//      is not equivalent to slot number. NOPs can be slotted and they
+		// 		should not appear in this output OR cause gaps in the sequence
+		//		numbers of the output.
 		System.out.println("\nCHAT LOG of client " + this.id + ":");
 		
 		for (int i = 0; i < this.chatLog.getState().size(); i++)
