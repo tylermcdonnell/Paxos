@@ -7,6 +7,7 @@ import ballot.Ballot;
 import ballot.BallotGenerator;
 import framework.NetController;
 import message.Adopted;
+import message.HeartBeat;
 import message.Message;
 import message.Preempted;
 import message.Proposal;
@@ -19,9 +20,14 @@ import message.Proposal;
  */
 public class Leader
 {
+	// (NEW) Current leader ID from the view of this leader.
+	private int currentLeaderId;
+	
+	// Heart beat generator (NEW)
+	private HeartBeatGenerator hbg;
+	
 	// If this leader is the current leader.
-	// TODO							// TODO					// TODO						// TODO					// TODO
-	private boolean isCurrentLeader;
+	//private boolean isCurrentLeader;
 	
 	// What server this leader is on.
 	private int serverId;
@@ -76,28 +82,63 @@ public class Leader
 		// Number of servers in the system.
 		this.numServers = numServers;
 		
-		// TODO Instead, keep an scouts = ArrayList<Scout>.  For each scout created,
-		// give it an ID equal to the index of the element in scouts that the Scout 
-		// is located at.  When a scout of ID n returns false, null it out in the list.
-		// Keep giving scouts increasing numbers, never need to delete scouts for
-		// our purposes.  But, for now, just use one scout.
-		// TODO redo comments above.
-		if (this.serverId == 0)
-		{
-			this.isCurrentLeader = true;
-			
+		// On start up, leader with ID 0 is the current leader.
+		this.currentLeaderId = 0;
+		
+		if (this.isCurrentLeader())
+		{			
 			// Spawn a Scout for the initial ballot.
 			Scout firstScout = new Scout(this.currBallot, serverId, network, numServers, this.scouts.size());
 			this.scouts.add(firstScout);
+			
+			System.out.println("Leader " + this.serverId + " spanwed first Scout!");
 		}
 		else
 		{
-			this.isCurrentLeader = false;
+			// Don't spawn scouts.  Just chill.
 		}
+		
+		// (NEW)
+		// Heart beat period = 1 second.
+		// Update system view period = 5 seconds.
+		this.hbg = new HeartBeatGenerator(serverId, network, numServers, 200, 1000);
 	}
 	
+	
 	public void runTasks(Message message)
-	{
+	{	
+		// Heart beats (NEW)
+		ArrayList<Integer> deadLeaderIds = this.hbg.beatAndAnalyze(this.currentLeaderId);
+		
+		// NEW
+		if (deadLeaderIds.size() > 0)
+		{
+			System.out.print("Leader " + this.serverId + " dead leaders detected: ");
+			for (int i = 0; i < deadLeaderIds.size(); i++)
+			{
+				System.out.print(deadLeaderIds.get(i) + ", ");
+			}
+			System.out.println();
+		}
+		
+		
+		
+		//**********************************************************************
+		//* Leader received HeartBeat from another leader, or itself.
+		//**********************************************************************
+		// (NEW)
+		if (message instanceof HeartBeat)
+		{
+			HeartBeat hb = (HeartBeat) message;
+			
+			// (NEW)
+			this.hbg.addBeat(hb);
+		}
+		
+		
+		
+		
+		
 		// ONLY EXECUTE on this message if we are the current leader.
 		if (!this.isCurrentLeader())
 		{
@@ -474,8 +515,10 @@ public class Leader
 	 * 
 	 * @param leaderId, the current leader ID.
 	 */
-	public void setCurrentLeader(int leaderId)
+	/*public void setCurrentLeader(int leaderId)
 	{
+		this.currentLeaderId = leaderId;
+		
 		if (leaderId == this.serverId)
 		{
 			this.isCurrentLeader = true;
@@ -484,7 +527,7 @@ public class Leader
 		{
 			this.isCurrentLeader = false;
 		}
-	}
+	}*/
 	
 	
 	/**
@@ -494,7 +537,7 @@ public class Leader
 	 */
 	private boolean isCurrentLeader()
 	{
-		return this.isCurrentLeader;
+		return (this.currentLeaderId == this.serverId);
 	}	
 }
 

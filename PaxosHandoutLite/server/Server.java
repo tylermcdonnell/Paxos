@@ -41,8 +41,6 @@ public class Server implements Runnable {
 	// Number of servers in the system.
 	private int numServers;
 	
-	public int currentLeaderId;
-	
 	
 	/**
 	 * Constructor.
@@ -51,9 +49,7 @@ public class Server implements Runnable {
 	 * @param nc, the NetController for this server.
 	 */
 	public Server(int id, NetController nc, LinkedList<String> serverReceiveQueue, int numServers)
-	{
-		// Current leader upon start up has ID = 0;
-		this.currentLeaderId = 0;
+	{	
 		this.id = id;
 		this.numServers = numServers;
 		this.network = nc;
@@ -61,6 +57,9 @@ public class Server implements Runnable {
 		this.replica = new Replica(id, numServers, nc);
 		this.leader = new Leader(id, numServers, nc);
 		this.acceptor = new Acceptor(id, nc);
+		
+		// Current leader upon start up has ID = 0;
+		//this.leader.setCurrentLeader(0);
 	}
 	
 	@Override
@@ -100,10 +99,6 @@ public class Server implements Runnable {
 				//System.out.println("Server " + this.id + " received: " + currMessage);
 				
 				this.replica.runTasks(currMessage);
-				
-				// Set who the current leader is before we run tasks.
-				this.leader.setCurrentLeader(this.currentLeaderId);
-				
 				this.leader.runTasks(currMessage);
 				this.acceptor.runTasks(currMessage);
 				
@@ -114,6 +109,11 @@ public class Server implements Runnable {
 					System.out.println("Server " + this.id + " received " + plainMessage);
 				}
 			}
+			
+			// (NEW)
+			// Leader needs to send heartbeats, so run it continuously, even
+			// when no new messages are coming in.
+			this.leader.runTasks(null);
 		}
 	}
 	
