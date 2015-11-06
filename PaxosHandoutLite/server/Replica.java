@@ -58,7 +58,12 @@ public class Replica
 		this.numServers = numServers;
 		
 		// The next slot to fill at initialization is 1.
-		this.slot_num = 1;
+		// TSM: I think we want this to be 0. The project description
+		// states that printChatLog should print out the zero-indexed
+		// Paxos sequence number of a message in the chat log. If we
+		// start with slot 1 instead of slot 0, the output sequence
+		// numbers will be incorrect.
+		this.slot_num = 0;
 		
 		// All replicas start with the same initial state.
 		this.state = new State();
