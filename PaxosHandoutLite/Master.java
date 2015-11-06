@@ -15,6 +15,7 @@ import message.Decision;
 import message.Message;
 import message.Proposal;
 import message.Request;
+import message.TimeBombLeader;
 import server.Server;
 
 public class Master {
@@ -137,6 +138,17 @@ public class Master {
              * Instruct the leader to crash after sending the number of paxos
              * related messages specified by numMessages
              */ 
+            
+            // Need to find out who current leader is.  This will be called
+            // after allClear is called, so when a single leader is elected.
+            // How to ensure this?
+            // -- Have heart beat messages include who the server thinks the
+            // current leader is.  Let Master access a Server public variable
+            // which specifies who each process thinks the current Leader is.
+            // When all are in agreement, allClear is true, and we can also
+            // find out who currrent leader is at that point, as well.
+            //TimeBombLeader tbMessage = new TimeBombLeader();
+            
             break;
             
         // Added by Mike.
