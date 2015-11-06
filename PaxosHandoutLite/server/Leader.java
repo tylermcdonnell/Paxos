@@ -124,11 +124,17 @@ public class Leader
 			if (existsCmdForThisSlot == false)
 			{
 				// Take union of proposals and this new proposal.
-				if (!this.proposals.contains(proposal))
-				{
+				// This need not be a union, since we know that there is no
+				// proposal in the leader's proposals set with the slot number 
+				// of this new proposal.  So, just add it.
+				
+				// TODO: is this correct? Yes, I think so.
+				
+				//if (!this.proposals.contains(proposal))
+				//{
 					this.proposals.add(proposal);
 					System.out.println("Leader " + this.serverId + " added Proposal: " + proposal);
-				}
+				//}
 				
 				if (this.active)
 				{
@@ -203,7 +209,34 @@ public class Leader
 			Preempted preempted = (Preempted) message;
 			System.out.println("Leader " + this.serverId + " received " + preempted);
 			
-			// TODO
+			// The Ballot which we were preempted with.
+			Ballot preemptingBallot = preempted.getBallot();
+			
+			// If the preempting ballot was indeed larger than our current
+			// ballot (perhaps a preempted message is coming in late).
+			if (preemptingBallot.greaterThan(this.currBallot))
+			{
+				this.active = false;
+				
+				// Generate new ballots until we are greater than this one.
+				boolean notGreater = true;
+				Ballot newBallot;
+				
+				while (notGreater)
+				{
+					newBallot = this.getNextBallot();
+					
+					if (newBallot.greaterThan(preemptingBallot))
+					{
+						notGreater = false;
+					}
+				}
+				
+				// We now have a ballot larger than the ballot we were preempted
+				// with.  Spawn a Scout with this new ballot.
+				Scout newScout = new Scout(this.currBallot, serverId, network, numServers, this.scouts.size());
+				this.scouts.add(newScout);
+			}
 		}
 	
 		//**********************************************************************
