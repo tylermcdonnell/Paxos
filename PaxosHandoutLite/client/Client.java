@@ -10,6 +10,8 @@ import message.Message;
 import message.PlainMessage;
 import message.Request;
 import message.Response;
+import server.State;
+import server.StateEntry;
 
 /**
  * A client in a chat room.  The chat room is kept consistent
@@ -37,6 +39,9 @@ public class Client implements Runnable {
 	// Number of servers in the system.
 	private int numServers;
 	
+	// This client's view of the chat room state.
+	private State chatLog;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -56,6 +61,9 @@ public class Client implements Runnable {
 		this.network = nc;
 		this.numClients = numClients;
 		this.numServers = numServers;
+		
+		// Chat room log empty initially.
+		this.chatLog = new State();
 	}
 	
 	
@@ -140,9 +148,18 @@ public class Client implements Runnable {
 					
 					System.out.println("Client " + this.id + " received: " + response);
 					
-					// Testing.
-					// Print new state.
-					System.out.println(response.getResult());
+					// Check if we have gotten this result yet (since all
+					// replicas send a performed decision to the client
+					// who issued the command).
+					StateEntry result = response.getResult();
+					if (!this.chatLog.getState().contains(result))
+					{
+						// Add this result to our state.
+						this.chatLog.addToState(response.getResult());
+					}
+					
+					// Testing.  Print out this client's view of chat room.
+					printChatLog();
 				}
 				
 				// Communication testing.
@@ -153,6 +170,38 @@ public class Client implements Runnable {
 				}
 			}
 		}
+	}
+	
+	
+	// TODO: make printChatLog() block until completion.  This just means that
+	// we need to make it such that no other processes use stdout.  We need to
+	// eventually funnel all System.out.print()'s to the Master for processing,
+	// so this shouldn't be too hard once we finish that.  For now, this method
+	// is NOT blocking.
+	
+	/**
+	 * Print this client's view of the chat record in the format
+	 * specified in the design doc.  Should block until completion.
+	 *
+	 */
+	public void printChatLog()
+	{
+		// TODO: is sequence number the slot number?  Assume so, but ask!
+		// Or is it just a logical number, like 0, 1, 2, 3... if we use the
+		// slot number, it may look like 0, 2, 45, 56...
+		
+		System.out.println("\nCHAT LOG of client " + this.id + " :");
+		
+		for (int i = 0; i < this.chatLog.getState().size(); i++)
+		{
+			StateEntry currEntry = this.chatLog.getState().get(i);
+			
+			System.out.println(currEntry.getSlotNumber() + " " 
+					+ currEntry.getCommand().getClientId() + " " 
+					+ currEntry.getCommand().getOperation());
+		}
+		System.out.println();
+		
 	}
 	
 	
