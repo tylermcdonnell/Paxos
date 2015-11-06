@@ -152,7 +152,7 @@ public class Client implements Runnable {
 					// replicas send a performed decision to the client
 					// who issued the command).
 					StateEntry result = response.getResult();
-					synchronized(chatLog)
+					synchronized(this.chatLog)
 					{
 						if (!this.chatLog.getState().contains(result))
 						{
