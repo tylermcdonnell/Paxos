@@ -41,6 +41,8 @@ public class Server implements Runnable {
 	// Number of servers in the system.
 	private int numServers;
 	
+	public int currentLeaderId;
+	
 	
 	/**
 	 * Constructor.
@@ -50,6 +52,8 @@ public class Server implements Runnable {
 	 */
 	public Server(int id, NetController nc, LinkedList<String> serverReceiveQueue, int numServers)
 	{
+		// Current leader upon start up has ID = 0;
+		this.currentLeaderId = 0;
 		this.id = id;
 		this.numServers = numServers;
 		this.network = nc;
@@ -96,6 +100,10 @@ public class Server implements Runnable {
 				//System.out.println("Server " + this.id + " received: " + currMessage);
 				
 				this.replica.runTasks(currMessage);
+				
+				// Set who the current leader is before we run tasks.
+				this.leader.setCurrentLeader(this.currentLeaderId);
+				
 				this.leader.runTasks(currMessage);
 				this.acceptor.runTasks(currMessage);
 				

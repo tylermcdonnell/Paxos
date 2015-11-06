@@ -97,7 +97,12 @@ public class Leader
 	}
 	
 	public void runTasks(Message message)
-	{	
+	{
+		// ONLY EXECUTE on this message if we are the current leader.
+		if (!this.isCurrentLeader())
+		{
+			return;
+		}
 		
 		//**********************************************************************
 		//* Leader received a Proposal from a Replica.
@@ -461,6 +466,36 @@ public class Leader
 		return nextBallot;
 	}
 	
+	
+	/**
+	 * If the current leader ID given is equal to this leader's ID,
+	 * set it as current leader.  Else, set it as not the current
+	 * leader.
+	 * 
+	 * @param leaderId, the current leader ID.
+	 */
+	public void setCurrentLeader(int leaderId)
+	{
+		if (leaderId == this.serverId)
+		{
+			this.isCurrentLeader = true;
+		}
+		else
+		{
+			this.isCurrentLeader = false;
+		}
+	}
+	
+	
+	/**
+	 * Returns true iff this leader is the current leader.
+	 * 
+	 * @return true iff this leader is the current leader.
+	 */
+	private boolean isCurrentLeader()
+	{
+		return this.isCurrentLeader;
+	}	
 }
 
 
