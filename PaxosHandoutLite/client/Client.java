@@ -190,7 +190,7 @@ public class Client implements Runnable {
 		// Or is it just a logical number, like 0, 1, 2, 3... if we use the
 		// slot number, it may look like 0, 2, 45, 56...
 		
-		System.out.println("\nCHAT LOG of client " + this.id + " :");
+		System.out.println("\nCHAT LOG of client " + this.id + ":");
 		
 		for (int i = 0; i < this.chatLog.getState().size(); i++)
 		{
