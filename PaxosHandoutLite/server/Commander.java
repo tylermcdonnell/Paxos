@@ -87,7 +87,7 @@ public class Commander
 			// If the ballot returned from the acceptor is the one I gave him 
 			// in p2a.
 			if (p2b.getBallot().equals(this.pvalue.getBallot()))
-			{	
+			{
 				// Testing.
 				/*
 				System.out.print("commander: OLD WAIT FOR LIST: ");
