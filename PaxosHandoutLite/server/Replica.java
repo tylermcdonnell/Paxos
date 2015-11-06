@@ -63,7 +63,8 @@ public class Replica
 		// Paxos sequence number of a message in the chat log. If we
 		// start with slot 1 instead of slot 0, the output sequence
 		// numbers will be incorrect.
-		this.slot_num = 0;
+		// MIKE: changed back to 1.
+		this.slot_num = 1;
 		
 		// All replicas start with the same initial state.
 		this.state = new State();
