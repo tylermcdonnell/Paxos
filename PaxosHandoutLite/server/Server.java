@@ -48,13 +48,13 @@ public class Server implements Runnable {
 	 * @param id, the ID of this server.
 	 * @param nc, the NetController for this server.
 	 */
-	public Server(int id, NetController nc, LinkedList<String> serverReceiveQueue, int numServers)
+	public Server(int id, NetController nc, LinkedList<String> serverReceiveQueue, int numServers, int numClients)
 	{	
 		this.id = id;
 		this.numServers = numServers;
 		this.network = nc;
 		this.serverReceiveQueue = serverReceiveQueue;
-		this.replica = new Replica(id, numServers, nc);
+		this.replica = new Replica(id, numServers, nc, numClients);
 		this.leader = new Leader(id, numServers, nc);
 		this.acceptor = new Acceptor(id, nc);
 		

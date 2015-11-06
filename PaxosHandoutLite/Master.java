@@ -250,7 +250,7 @@ public class Master {
 			serverQueues.add(serverQueue);
 
 			// Pass in ID of this server.
-			Server server = new Server(i, getServerNetController(i), serverQueue, Master.numberServers);
+			Server server = new Server(i, getServerNetController(i), serverQueue, Master.numberServers, Master.numberClients);
 			Thread serverThread = new Thread(server);
 			serverThread.start();
 

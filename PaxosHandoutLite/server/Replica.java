@@ -49,8 +49,13 @@ public class Replica
 	// My server's NetController.
 	private NetController network;
 	
-	public Replica(int serverId, int numServers, NetController network)
+	// Number of clients in the system
+	private int numClients;
+	
+	public Replica(int serverId, int numServers, NetController network, int numClients)
 	{
+		this.numClients = numClients;
+		
 		this.proposals = new ArrayList<Proposal>();
 		this.decisions = new ArrayList<Decision>();
 		
@@ -355,6 +360,10 @@ public class Replica
 		
 		// Send clients the update.
 		Response response = new Response(p.getCommandId(), result);
-		this.network.sendMsgToClient(p.getClientId(), response);
+		
+		for (int i = 0; i < this.numClients; i++)
+		{
+			this.network.sendMsgToClient(i, response);
+		}
 	}
 }
