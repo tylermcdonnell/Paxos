@@ -152,12 +152,15 @@ public class Client implements Runnable {
 					// replicas send a performed decision to the client
 					// who issued the command).
 					StateEntry result = response.getResult();
-					if (!this.chatLog.getState().contains(result))
+					synchronized(chatLog)
 					{
-						// Add this result to our state.
-						this.chatLog.addToState(response.getResult());
+						if (!this.chatLog.getState().contains(result))
+						{
+							// Add this result to our state.
+							this.chatLog.addToState(response.getResult());
+						}
 					}
-					
+		
 					// Testing.  Print out this client's view of chat room.
 					printChatLog();
 				}
@@ -179,6 +182,17 @@ public class Client implements Runnable {
 	// so this shouldn't be too hard once we finish that.  For now, this method
 	// is NOT blocking.
 	
+	// TSM: Per the project description, I don't think our final project can
+	// 		print anything at all to sdtout or even any other buffer, such as
+	//		stderr. We will probably need to comment out all prints throughout
+	//		the projects (even stack trace prints from errors). That also probably
+	// 		means that we won't have to worry about funneling prints to the Master.
+	//      That is, since the Master will be the thread calling printChatLog,
+	// 		only one thing could possibly ever be printing at a time. At the same
+	//		time, that means that a separate thread (other than the client) will
+	// 		be accessing this printChatLog method, which means that it's possible
+	// 		for more than one thread to be accessing the chatLog at a time. So,
+	// 		I think we need to synchronize accesses to the chatLog.
 	/**
 	 * Print this client's view of the chat record in the format
 	 * specified in the design doc.  Should block until completion.
@@ -196,16 +210,18 @@ public class Client implements Runnable {
 		//		numbers of the output.
 		System.out.println("\nCHAT LOG of client " + this.id + ":");
 		
-		for (int i = 0; i < this.chatLog.getState().size(); i++)
+		synchronized(this.chatLog)
 		{
-			StateEntry currEntry = this.chatLog.getState().get(i);
-			
-			System.out.println(currEntry.getSlotNumber() + " " 
-					+ currEntry.getCommand().getClientId() + " " 
-					+ currEntry.getCommand().getOperation());
+			for (int i = 0; i < this.chatLog.getState().size(); i++)
+			{
+				StateEntry currEntry = this.chatLog.getState().get(i);
+				
+				System.out.println(currEntry.getSlotNumber() + " " 
+						+ currEntry.getCommand().getClientId() + " " 
+						+ currEntry.getCommand().getOperation());
+			}
+			System.out.println();
 		}
-		System.out.println();
-		
 	}
 	
 	
