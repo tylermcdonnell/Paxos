@@ -29,8 +29,9 @@ public class Server implements Runnable {
 	// This server's Acceptor.
 	private Acceptor acceptor;
 	
-	// This server's Leader.
-	private Leader leader;
+	// This server's Leader.  Make public so the Master class can view
+	// the leader's public variables.
+	public Leader leader;
 	
 	// This server's NetController.
 	private NetController network;
