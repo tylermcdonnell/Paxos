@@ -114,6 +114,12 @@ public class Master {
 				 * come to consensus in PAXOS do, and that all clients have
 				 * heard of them
 				 */
+				
+				// Wait for:
+				// (1) all leaders to finish recovering (if any are recovering currently)
+				// (2) the last message sent on any NetController is more than one second ago
+				allClear();
+				
 				break;
 
 			case "crashServer":
@@ -232,6 +238,63 @@ public class Master {
 		} // End while
 	} // End main
 
+	
+	/**
+	 * See description in main loop.
+	 */
+	private static void allClear()
+	{
+		// Wait for:
+		// (1) all leaders to finish recovering (if any are recovering currently)
+		// (2) the last message sent on any NetController is more than one second ago
+		boolean waiting = true;
+		
+		while (waiting)
+		{
+			boolean noLeaderRecovering = true;
+			boolean noMessagesSentLastSecond = false;
+			
+			// Check if any leader is recovering.
+			for (int i = 0; i < Master.serverProcesses.size(); i++)
+			{
+				Server currServer = Master.serverProcesses.get(i);
+				
+				// Make sure leader was created, since Server thread may have
+				// not created its leader yet.
+				if (currServer.leader == null)
+				{
+					noLeaderRecovering = false;
+				}
+				else
+				{
+					// Leader is not null.
+					if (currServer.leader.isRecovering == true)
+					{
+						noLeaderRecovering = false;
+					}
+				}
+			}
+			
+			// Check if any NetController has sent a message in the last second.
+			long currTime = System.currentTimeMillis();
+			
+			for (int i = 0; i < Master.netControllers.size(); i++)
+			{
+				NetController currNetController = Master.netControllers.get(i);
+				
+				if (currNetController.lastMessageTime() < (currTime - 1000))
+				{
+					noMessagesSentLastSecond = false;
+				}
+			}
+			
+			if (noLeaderRecovering && noMessagesSentLastSecond)
+			{
+				waiting = false;
+			}
+		}
+	}
+	
 	private static void test() {
 		start(1, 1);
 

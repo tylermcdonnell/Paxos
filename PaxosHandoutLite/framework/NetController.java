@@ -41,6 +41,9 @@ public class NetController {
 	private final ListenServer listener;
 	
 	// MIKE: added.
+	private long lastTimeMessageSent;
+	
+	// MIKE: added.
 	private final int numClients;
 	
 	public NetController(Config config, int numClients) {
@@ -52,6 +55,14 @@ public class NetController {
 		
 		// MIKE: added.
 		this.numClients = numClients;
+		
+		// MIKE: added.  Last time message sent was infinity (default value).
+		this.lastTimeMessageSent = Long.MAX_VALUE;
+	}
+	
+	public long lastMessageTime()
+	{
+		return this.lastTimeMessageSent;
 	}
 	
 	// Establish outgoing connection to a process
@@ -77,6 +88,10 @@ public class NetController {
 	 * @return bool indicating success
 	 */
 	public synchronized boolean sendMsg(int process, String msg) {
+		
+		// MIKE: added.
+		this.lastTimeMessageSent = System.currentTimeMillis();
+		
 		try {
 			if (outSockets[process] == null)
 				initOutgoingConn(process);
