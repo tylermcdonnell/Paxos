@@ -47,7 +47,7 @@ public class Server implements Runnable {
 	 * Constructor.
 	 * 
 	 */
-	public Server(int id, NetController nc, LinkedList<String> serverReceiveQueue, int numServers, int numClients, boolean isRecovering)
+	public Server(int id, NetController nc, LinkedList<String> serverReceiveQueue, int numServers, int numClients, boolean isRecovering, long acceptorRecoveryWaitTime)
 	{	
 		this.id = id;
 		this.numServers = numServers;
@@ -55,7 +55,7 @@ public class Server implements Runnable {
 		this.serverReceiveQueue = serverReceiveQueue;
 		this.replica = new Replica(id, numServers, nc, numClients);
 		this.leader = new Leader(id, numServers, nc, isRecovering);
-		this.acceptor = new Acceptor(id, nc, isRecovering, numServers);
+		this.acceptor = new Acceptor(id, nc, isRecovering, numServers, acceptorRecoveryWaitTime);
 		
 		// Current leader upon start up has ID = 0;
 		//this.leader.setCurrentLeader(0);
@@ -113,6 +113,9 @@ public class Server implements Runnable {
 			// Leader needs to send heartbeats, so run it continuously, even
 			// when no new messages are coming in.
 			this.leader.runTasks(null);
+			
+			// Continuously run acceptor (for case when it is recovering).
+			this.acceptor.runTasks(null);
 		}
 	}
 	
