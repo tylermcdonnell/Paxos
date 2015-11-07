@@ -58,7 +58,7 @@ public class Leader
 	private ArrayList<Scout> scouts;
 	
 	// Is this leader currently recovering?
-	private boolean isRecovering;
+	public boolean isRecovering;
 	
 	
 	public Leader(int serverId, int numServers, NetController network, boolean isRecovering)
