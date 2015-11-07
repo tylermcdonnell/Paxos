@@ -24,6 +24,11 @@ public class Master {
 	// we say the system is idle (in milliseconds)?
 	public final static long ALL_CLEAR_WAIT_TIME_MS = 2000;
 	
+	// How long a recovering acceptor should wait to receive acceptor sets
+	// from other acceptors, before it stops recovering and uses the acceptor
+	// sets it has received up to this point.
+	public final static long ACCEPTOR_SET_RECEIVE_WAIT_TIME = 5000;
+	
 	// A list of queues we can talk to clients with. The queue at index i is the
 	// queue that client i is continuously listening on.
 	public static ArrayList<LinkedList<String>> clientQueues = new ArrayList<LinkedList<String>>();
@@ -148,7 +153,10 @@ public class Master {
 				// Clear net controller messages before giving it to this
 				// restarting server.
 				// TODO
-				Server server = new Server(nodeIndex, getServerNetController(nodeIndex), Master.serverQueues.get(nodeIndex), Master.numberServers, Master.numberClients, true);
+				Server server = new Server(nodeIndex, getServerNetController(nodeIndex), 
+						Master.serverQueues.get(nodeIndex), Master.numberServers, 
+						Master.numberClients, true, ACCEPTOR_SET_RECEIVE_WAIT_TIME);
+				
 				Thread serverThread = new Thread(server);
 				serverThread.start();
 				
@@ -336,7 +344,10 @@ public class Master {
 			serverQueues.add(serverQueue);
 
 			// Pass in ID of this server.
-			Server server = new Server(i, getServerNetController(i), serverQueue, Master.numberServers, Master.numberClients, false);
+			Server server = new Server(i, getServerNetController(i), 
+					serverQueue, Master.numberServers, Master.numberClients, 
+					false, ACCEPTOR_SET_RECEIVE_WAIT_TIME);
+			
 			Thread serverThread = new Thread(server);
 			serverThread.start();
 
