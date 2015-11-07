@@ -57,8 +57,9 @@ public class NetController {
 		// MIKE: added.
 		this.numClients = numClients;
 		
-		// MIKE: added.  Last time message sent was infinity (default value).
-		this.lastTimeMessageSent = Long.MAX_VALUE;
+		// MIKE: added.  This way, if a particular NetController has never
+		// sent a message, it can still pass the allClear test.
+		this.lastTimeMessageSent = Long.MIN_VALUE;
 	}
 	
 	public long lastMessageTime()

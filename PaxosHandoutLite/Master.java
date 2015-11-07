@@ -283,14 +283,14 @@ public class Master {
 			long currTime = System.currentTimeMillis();
 			
 			// Testing.
-			//System.out.println("Current Time:                      " + currTime);
-			//System.out.println("Checking against currTime - 2000:  " + (currTime - 2000));
+			System.out.println("Current Time:                      " + currTime);
+			System.out.println("Checking against currTime - 2000:  " + (currTime - 2000));
 			
 			for (int i = 0; i < Master.netControllers.size(); i++)
 			{
 				NetController currNetController = Master.netControllers.get(i);
 				
-				//System.out.println("NetController last send time:      " + currNetController.lastMessageTime());
+				System.out.println("NetController last send time:      " + currNetController.lastMessageTime());
 				
 				if (currNetController.lastMessageTime() >= (currTime - Master.ALL_CLEAR_WAIT_TIME_MS))
 				{
