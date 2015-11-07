@@ -55,7 +55,7 @@ public class Server implements Runnable {
 		this.serverReceiveQueue = serverReceiveQueue;
 		this.replica = new Replica(id, numServers, nc, numClients);
 		this.leader = new Leader(id, numServers, nc, isRecovering);
-		this.acceptor = new Acceptor(id, nc);
+		this.acceptor = new Acceptor(id, nc, isRecovering, numServers);
 		
 		// Current leader upon start up has ID = 0;
 		//this.leader.setCurrentLeader(0);
