@@ -144,6 +144,20 @@ public class PValue implements Serializable
 	}
 	
 	
+	/**
+	 * Prints, in a nice format, the PValues in an ArrayList<PValue> list.
+	 * 
+	 * @param list, an ArrayList<PValue> list.
+	 */
+	public static void printNicely(ArrayList<PValue> list)
+	{
+		for (int i = 0; i < list.size(); i++)
+		{
+			System.out.println(list.get(i));
+		}
+	}
+	
+	
 	@Override
 	public boolean equals(Object o)
 	{
