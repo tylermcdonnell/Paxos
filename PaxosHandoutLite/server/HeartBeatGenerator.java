@@ -70,8 +70,11 @@ public class HeartBeatGenerator
 	 * @param currentLeader, the current leader from the view of who is
 	 * calling this method.
 	 * 
-	 * @return A list of the leader IDs who we believe are dead (we have not
-	 * gotten a heart beat from them in the last update period).
+	 * @return A list of the leader IDs who we believe are dead during
+	 * the last update period (or longer than the last update period
+	 * if this method is not called exactly at the time the update
+	 * period ends), else null if we have not collected enough information
+	 * determine who is dead in this current period).
 	 */
 	public ArrayList<Integer> beatAndAnalyze(int currentLeader)
 	{
@@ -126,9 +129,11 @@ public class HeartBeatGenerator
 			
 			// Clear data from last update period.
 			this.clearHeartBeatsArray();
+			
+			return deadLeaders;
 		}
 		
-		return deadLeaders;
+		return null;
 	}
 	
 	

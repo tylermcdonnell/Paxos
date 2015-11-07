@@ -57,8 +57,14 @@ public class Leader
 	// will contain its reference in this list.
 	private ArrayList<Scout> scouts;
 	
-	public Leader(int serverId, int numServers, NetController network)
+	// Is this leader currently recovering?
+	private boolean isRecovering;
+	
+	
+	public Leader(int serverId, int numServers, NetController network, boolean isRecovering)
 	{
+		this.isRecovering = isRecovering;
+		
 		this.commanders = new ArrayList<Commander>();
 		this.scouts = new ArrayList<Scout>();
 		
@@ -82,6 +88,46 @@ public class Leader
 		// Number of servers in the system.
 		this.numServers = numServers;
 		
+		if (isRecovering)
+		{
+			// Heart beat period = .4 seconds.
+			// Update system view period = 2 seconds.
+			this.hbg = new HeartBeatGenerator(serverId, network, numServers, 400, 2000);
+			
+			ArrayList<Integer> deadProcesses = null;
+			
+			while (deadProcesses == null)
+			{
+				// Telling others our view of the current leader is 0 will
+				// not adversely affect other processes.
+				
+				// TODO Right?
+				deadProcesses = this.hbg.beatAndAnalyze(0);
+			}
+			
+			// Loop breaks when returned value was not null.  We now have the
+			// list of dead processes in the system.
+			
+			// We can now determine, from the heart beats, who to set as our current
+			// leader.  It will not be us, because we are assuming that a server
+			// can die and recover within a single update heart beat period.
+			//this.currentLeaderId = ???
+			
+			// Send proposals request to all alive processes.
+			
+			// Receive proposals responses from all alive processes (blocking).
+			
+			// Set who current leader is.
+			
+			// Let it be known that we are done recovering, so allClear can
+			// stop waiting on us.
+			this.isRecovering = false;
+			
+			return;
+		}
+		
+		
+		
 		// On start up, leader with ID 0 is the current leader.
 		this.currentLeaderId = 0;
 		
@@ -98,48 +144,59 @@ public class Leader
 			// Don't spawn scouts.  Just chill.
 		}
 		
-		// (NEW)
-		// Heart beat period = 1 second.
-		// Update system view period = 5 seconds.
+		// Heart beat period = .4 seconds.
+		// Update system view period = 2 seconds.
 		this.hbg = new HeartBeatGenerator(serverId, network, numServers, 400, 2000);
 	}
 	
 	
 	public void runTasks(Message message)
 	{	
-		// Heart beats (NEW)
+		//**********************************************************************
+		//* See if we need to send another heart beat.  If so, send it.  Also
+		//* check if an update period has passed.  If so, we will receive a
+		//* list of the leaders we believe to be dead now.
+		//**********************************************************************
 		ArrayList<Integer> deadLeaderIds = this.hbg.beatAndAnalyze(this.currentLeaderId);
 		
-		// NEW
-		if (deadLeaderIds.size() > 0)
+		// If the current update period has passed, we will receive a list of
+		// leaders we believe to be dead now.
+		if (deadLeaderIds != null)
 		{
+			// Testing.
 			System.out.print("Leader " + this.serverId + " dead leaders detected: ");
 			for (int i = 0; i < deadLeaderIds.size(); i++)
 			{
 				System.out.print(deadLeaderIds.get(i) + ", ");
 			}
 			System.out.println();
+			
+			//****************************************
+			// Leader Election logic for if current leader dies.
+			//****************************************
+			// TODO 
 		}
-		
 		
 		
 		//**********************************************************************
 		//* Leader received HeartBeat from another leader, or itself.
 		//**********************************************************************
-		// (NEW)
 		if (message instanceof HeartBeat)
 		{
+			// If received a heart beat, let the generator know.
 			HeartBeat hb = (HeartBeat) message;
-			
-			// (NEW)
 			this.hbg.addBeat(hb);
+			
+			//*****************************************************************
+			//* Leader election logic for if someone has a higher current ID
+			//*****************************************************************
+			// TODO
 		}
 		
 		
-		
-		
-		
-		// ONLY EXECUTE on this message if we are the current leader.
+		//**********************************************************************
+		//* Do not run tasks if we are not the current leader.
+		//**********************************************************************
 		if (!this.isCurrentLeader())
 		{
 			return;

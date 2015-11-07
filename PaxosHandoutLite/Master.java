@@ -131,6 +131,15 @@ public class Master {
 				/*
 				 * Restart the server specified by nodeIndex
 				 */
+				
+				// TODO
+				// Clear net controller messages before giving it to this
+				// restarting server.
+				// TODO
+				Server server = new Server(nodeIndex, getServerNetController(nodeIndex), Master.serverQueues.get(nodeIndex), Master.numberServers, Master.numberClients, true);
+				Thread serverThread = new Thread(server);
+				serverThread.start();
+				
 				break;
 
 			case "timeBombLeader":
@@ -250,7 +259,7 @@ public class Master {
 			serverQueues.add(serverQueue);
 
 			// Pass in ID of this server.
-			Server server = new Server(i, getServerNetController(i), serverQueue, Master.numberServers, Master.numberClients);
+			Server server = new Server(i, getServerNetController(i), serverQueue, Master.numberServers, Master.numberClients, false);
 			Thread serverThread = new Thread(server);
 			serverThread.start();
 

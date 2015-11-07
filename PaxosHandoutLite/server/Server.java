@@ -45,17 +45,15 @@ public class Server implements Runnable {
 	/**
 	 * Constructor.
 	 * 
-	 * @param id, the ID of this server.
-	 * @param nc, the NetController for this server.
 	 */
-	public Server(int id, NetController nc, LinkedList<String> serverReceiveQueue, int numServers, int numClients)
+	public Server(int id, NetController nc, LinkedList<String> serverReceiveQueue, int numServers, int numClients, boolean isRecovering)
 	{	
 		this.id = id;
 		this.numServers = numServers;
 		this.network = nc;
 		this.serverReceiveQueue = serverReceiveQueue;
 		this.replica = new Replica(id, numServers, nc, numClients);
-		this.leader = new Leader(id, numServers, nc);
+		this.leader = new Leader(id, numServers, nc, isRecovering);
 		this.acceptor = new Acceptor(id, nc);
 		
 		// Current leader upon start up has ID = 0;
