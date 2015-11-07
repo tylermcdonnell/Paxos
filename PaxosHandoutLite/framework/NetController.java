@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.logging.Level;
 
+import message.HeartBeat;
 import message.Message;
 
 /**
@@ -89,9 +90,6 @@ public class NetController {
 	 */
 	public synchronized boolean sendMsg(int process, String msg) {
 		
-		// MIKE: added.
-		this.lastTimeMessageSent = System.currentTimeMillis();
-		
 		try {
 			if (outSockets[process] == null)
 				initOutgoingConn(process);
@@ -137,6 +135,10 @@ public class NetController {
 	// MIKE: changed for Paxos.
 	public boolean sendMsgToClient(int process, Message msg)
 	{
+		// MIKE: added.  Clients don't send each other heart beats, so
+		// no we can tag every message sent.
+		this.lastTimeMessageSent = System.currentTimeMillis();
+		
 		try
 		{
 			return sendMsg(this.getClientNetControllerIndex(process), toString((Serializable)msg));
@@ -152,6 +154,13 @@ public class NetController {
 	// Mike: changed for Paxos.
 	public boolean sendMsgToServer(int process, Message msg)
 	{
+		// MIKE: added.
+		// Servers send each other heart beats -- exclude these.
+		if (!(msg instanceof HeartBeat))
+		{
+			this.lastTimeMessageSent = System.currentTimeMillis();
+		}
+		
 		try
 		{
 			return sendMsg(this.getServerNetControllerIndex(process), toString((Serializable)msg));

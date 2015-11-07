@@ -20,6 +20,10 @@ import server.Server;
 
 public class Master {
 
+	// How long ago can the last message be sent on any NetController before
+	// we say the system is idle (in milliseconds)?
+	public final static long ALL_CLEAR_WAIT_TIME_MS = 2000;
+	
 	// A list of queues we can talk to clients with. The queue at index i is the
 	// queue that client i is continuously listening on.
 	public static ArrayList<LinkedList<String>> clientQueues = new ArrayList<LinkedList<String>>();
@@ -119,6 +123,8 @@ public class Master {
 				// (1) all leaders to finish recovering (if any are recovering currently)
 				// (2) the last message sent on any NetController is more than one second ago
 				allClear();
+				
+				System.out.println("All clear returned!");
 				
 				break;
 
@@ -247,12 +253,10 @@ public class Master {
 		// Wait for:
 		// (1) all leaders to finish recovering (if any are recovering currently)
 		// (2) the last message sent on any NetController is more than one second ago
-		boolean waiting = true;
-		
-		while (waiting)
+		while (true)
 		{
 			boolean noLeaderRecovering = true;
-			boolean noMessagesSentLastSecond = false;
+			boolean noMessagesSentLastSecond = true;
 			
 			// Check if any leader is recovering.
 			for (int i = 0; i < Master.serverProcesses.size(); i++)
@@ -267,7 +271,7 @@ public class Master {
 				}
 				else
 				{
-					// Leader is not null.
+					// Leader is not null, we can check its field.
 					if (currServer.leader.isRecovering == true)
 					{
 						noLeaderRecovering = false;
@@ -278,19 +282,29 @@ public class Master {
 			// Check if any NetController has sent a message in the last second.
 			long currTime = System.currentTimeMillis();
 			
+			// Testing.
+			//System.out.println("Current Time:                      " + currTime);
+			//System.out.println("Checking against currTime - 2000:  " + (currTime - 2000));
+			
 			for (int i = 0; i < Master.netControllers.size(); i++)
 			{
 				NetController currNetController = Master.netControllers.get(i);
 				
-				if (currNetController.lastMessageTime() < (currTime - 1000))
+				//System.out.println("NetController last send time:      " + currNetController.lastMessageTime());
+				
+				if (currNetController.lastMessageTime() >= (currTime - Master.ALL_CLEAR_WAIT_TIME_MS))
 				{
+					// Testing.
+					//System.out.println("Not a second since last send event.");
+					
 					noMessagesSentLastSecond = false;
 				}
 			}
 			
 			if (noLeaderRecovering && noMessagesSentLastSecond)
 			{
-				waiting = false;
+				// Mission accomplished!
+				return;
 			}
 		}
 	}
