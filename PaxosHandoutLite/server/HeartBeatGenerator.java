@@ -41,6 +41,10 @@ public class HeartBeatGenerator
 	// Who we have heard from in the last update period.
 	private Boolean[] heartBeatsInLastUpdatePeriod;
 	
+	// The max leader value among all heartbeats received.
+	// Note: This value is NOT taken mod N.
+	private int leader;
+	
 	public HeartBeatGenerator(int senderId, NetController network, int numServers, int heartBeatPeriod, int updateSystemViewPeriod)
 	{
 		this.senderId = senderId;
@@ -55,6 +59,9 @@ public class HeartBeatGenerator
 		
 		// Set to false for all leaders.
 		this.heartBeatsInLastUpdatePeriod = new Boolean[numServers];
+		
+		// We have not heard any heartbeats. Initialize to 0.
+		this.leader = 0;
 		
 		for (int i = 0; i < numServers; i++)
 		{
@@ -141,6 +148,12 @@ public class HeartBeatGenerator
 	{
 		int leaderId = hb.getSenderId();
 		this.heartBeatsInLastUpdatePeriod[leaderId] = true;
+		
+		// TSM: We are interested in the highest believed leader among
+		// all processes. Note that since we are always sending heart
+		// beats and since the Paxos protocol has an infinite supply of
+		// higher ballots, it is safe to always choose the highest leader.
+		this.leader = Math.max(this.leader, hb.getCurrentLeaderId());
 	}
 	
 	
@@ -150,5 +163,15 @@ public class HeartBeatGenerator
 		{
 			this.heartBeatsInLastUpdatePeriod[i] = false;
 		}
+	}
+	
+	/**
+	 * @return The believed leader based on all received heart beats from
+	 * 		   other processes. Specifically, this returns the max among
+	 * 		   all received leader IDs from all processes.
+	 */
+	public int getBelievedLeader()
+	{
+		return this.leader;
 	}
 }
