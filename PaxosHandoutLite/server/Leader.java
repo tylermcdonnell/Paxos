@@ -65,8 +65,21 @@ public class Leader
 	// Is this leader currently recovering?
 	public boolean isRecovering;
 	
+	// If a scout did not receive enough responses to send the adopted
+	// or the preempted message within the its timeout, we must wait
+	// until we find (by heartbeat) that a majority of servers are up,
+	// and then restart the scout.
+	private boolean scoutWaiting;
+
+	// PValues of those commanders who are waiting to be re-spawned because they
+	// timed out.
+	private ArrayList<PValue> commandersWaiting;
+	
 	public Leader(int serverId, int numServers, NetController network, boolean isRecovering)
 	{
+		this.scoutWaiting = false;
+		this.commandersWaiting = new ArrayList<PValue>();
+		
 		this.isRecovering = isRecovering;
 		
 		this.commanders = new ArrayList<Commander>();
@@ -120,12 +133,6 @@ public class Leader
 			// can die and recover within a single update heart beat period.
 			//this.currentLeaderId = ???
 			
-			// Send proposals request to all alive processes.
-			
-			// Receive proposals responses from all alive processes (blocking).
-			
-			// Set who current leader is.
-			
 			// Let it be known that we are done recovering, so allClear can
 			// stop waiting on us.
 			this.isRecovering = false;
@@ -159,6 +166,39 @@ public class Leader
 		// leaders we believe to be dead now.
 		if (deadLeaderIds != null)
 		{
+			//******************************************************************
+			//* If majority of servers are up, and scout timed out, restart
+			//* scout.
+			//******************************************************************
+			if (((double) deadLeaderIds.size()) < ((double) this.numServers / 2))
+			{
+				if (this.scoutWaiting)
+				{
+					this.scoutWaiting = false;
+					
+					Scout newScout = new Scout(this.currBallot, serverId, network, numServers, this.scouts.size(), this.timebomb);
+					this.scouts.add(newScout);
+					
+					System.out.println("Leader " + this.serverId + " RESPAWNED a Scout.");
+				}
+				
+				if (this.commandersWaiting.size() > 0)
+				{
+					for (int i = 0; i < this.commandersWaiting.size(); i++)
+					{
+						PValue newPValue = this.commandersWaiting.get(i);
+						Commander newCommander = new Commander(this.serverId, this.network, this.numServers, newPValue, this.commanders.size(), this.timebomb);
+						this.commanders.add(newCommander);
+						
+						System.out.println("Leader " + this.serverId + " created Commander for " + newPValue);
+					}
+					
+					// Clear the list, we have revived all commanders!
+					this.commandersWaiting = new ArrayList<PValue>();
+				}
+				
+			}
+			
 			// Testing.
 			/*
 			System.out.print("Leader " + this.serverId + " dead leaders detected: ");
@@ -212,14 +252,6 @@ public class Leader
 		
 		
 		//**********************************************************************
-		//* Do not run tasks if we are not the current leader.
-		//**********************************************************************
-		if (!this.isCurrentLeader())
-		{
-			return;
-		}
-		
-		//**********************************************************************
 		//* Leader received a Proposal from a Replica.
 		//**********************************************************************
 		if (message instanceof Proposal)
@@ -252,9 +284,24 @@ public class Leader
 				
 				//if (!this.proposals.contains(proposal))
 				//{
-					this.proposals.add(proposal);
-					System.out.println("Leader " + this.serverId + " added Proposal: " + proposal);
+				this.proposals.add(proposal);
+				System.out.println("Leader " + this.serverId + " added Proposal: " + proposal);
 				//}
+				
+				
+				//**************************************************************
+				//* Even if we are not current leader, rack up the proposal set
+				//* so when we do become leader (if we do), we know which
+				//* proposals to run through, especially in the case:
+				//* Current leader dies, message is sent by client (but only
+				//* the current leader can add it to their proposal set, so
+				//* clearly no one does), then I become leader, and don't have
+				//* it in my proposal set.  Bad news => make this fix.
+				//**************************************************************
+				if (!this.isCurrentLeader())
+				{
+					return;
+				}
 				
 				if (this.active)
 				{
@@ -264,11 +311,18 @@ public class Leader
 					Commander newCommander = new Commander(this.serverId, this.network, this.numServers, newPValue, this.commanders.size(), this.timebomb);
 					this.commanders.add(newCommander);
 					
-					System.out.println("Leader " + this.serverId + " created Commander.");
+					System.out.println("Leader " + this.serverId + " created Commander for " + newPValue);
 				}
 			}
 		}
 		
+		//**********************************************************************
+		//* Do not run the below tasks if we are not the current leader.
+		//**********************************************************************
+		if (!this.isCurrentLeader())
+		{
+			return;
+		}
 		
 		//**********************************************************************
 		//* Leader received Adopted from a Scout.
@@ -299,13 +353,15 @@ public class Leader
 			// Perform proposals = proposals (\oplus) pmax(pvals) from the Paper.
 			this.proposals = oplus(this.proposals, pmax_pvals);
 			
-			/*
+			System.out.println("Proposals");
+			
+			
 			System.out.println("proposals after \\oplus:");
 			for (int i = 0; i < this.proposals.size(); i++)
 			{
 				System.out.println("slotNum: " + this.proposals.get(i).getSlotNum() + ", " + this.proposals.get(i));
 			}
-			*/
+			
 			
 			// For all <s, p> \in proposals, spawn a Commander.
 			for (int i = 0; i < this.proposals.size(); i++)
@@ -315,6 +371,8 @@ public class Leader
 				
 				Commander newCommander = new Commander(this.serverId, this.network, this.numServers, newPValue, this.commanders.size(), this.timebomb);
 				this.commanders.add(newCommander);
+				
+				System.out.println("Leader " + this.serverId + " created Commander for " + newPValue);
 			}
 			
 			this.active = true;
@@ -376,11 +434,24 @@ public class Leader
 			{
 				int scoutReturnValue = currScout.runScout(message);
 				
+				if (scoutReturnValue == -2)
+				{
+					// This scout timed out.  Re-run him again once we know that a majority
+					// of servers are back up.
+					this.scoutWaiting = true;
+					
+					System.out.println("Scout " + this.serverId + "timed out.");
+					
+					this.scouts.add(i, null);
+					this.scouts.remove(i + 1);
+				}
+				
 				// If Scout returned its ID, null it out in our list -- it's
 				// done with all its tasks and can be garbage collected.
 				if (scoutReturnValue != -1)
 				{
-					System.out.println("Nulled out Scout of ID: " + scoutReturnValue);
+					// Testing.
+					//System.out.println("Nulled out Scout of ID: " + scoutReturnValue);
 					
 					this.scouts.add(i, null);
 					this.scouts.remove(i + 1);
@@ -398,13 +469,27 @@ public class Leader
 			// If we haven't nulled out this Commander, it still has work to do.
 			if (currCommander != null)
 			{
-				int commanderReturnValue = currCommander.runCommander(message);
+				CommanderReturnValue commanderReturnValue = currCommander.runCommander(message);
+				
+				if (commanderReturnValue.getReturnValue() == -2)
+				{
+					// This scout timed out.  Re-run him again once we know that a majority
+					// of servers are back up.
+					this.commandersWaiting.add(commanderReturnValue.getPValue());
+					
+					System.out.println("Commander " + this.serverId + "timed out.");
+					
+					this.commanders.add(i, null);
+					this.commanders.remove(i + 1);
+				}
+				
 				
 				// If Commander returned its ID, null it out in our list -- it's
 				// done with all its tasks and can be garbage collected.
-				if (commanderReturnValue != -1)
+				if (commanderReturnValue.getReturnValue() != -1)
 				{
-					System.out.println("Leader " + this.serverId + " nulled out Commander of ID: " + commanderReturnValue);
+					// Testing.
+					//System.out.println("Leader " + this.serverId + " nulled out Commander of ID: " + commanderReturnValue);
 					
 					this.commanders.add(i, null);
 					this.commanders.remove(i + 1);
@@ -424,7 +509,7 @@ public class Leader
 		Scout firstScout = new Scout(this.currBallot, serverId, network, numServers, this.scouts.size(), this.timebomb);
 		this.scouts.add(firstScout);
 		
-		System.out.println("Leader " + this.serverId + " spanwed first Scout!");
+		System.out.println("Leader " + this.serverId + " is now current leader -- spawned Scout.");
 	}
 	
 
@@ -484,11 +569,14 @@ public class Leader
 			}
 		}
 		
+		// Testing.
+		/*
 		System.out.print("SlotNums in x: ");
 		for (int i = 0; i < slotNumsInX.size(); i++)
 		{
 			System.out.print(slotNumsInX.get(i) + ", ");
 		}
+		*/
 		
 		// Get slot numbers in y.
 		ArrayList<Integer> slotNumsInY = new ArrayList<Integer>();
@@ -501,11 +589,14 @@ public class Leader
 			}
 		}
 		
+		// Testing.
+		/*
 		System.out.print("SlotNums in y: ");
 		for (int i = 0; i < slotNumsInY.size(); i++)
 		{
 			System.out.print(slotNumsInY.get(i) + ", ");
 		}
+		*/
 		
 		
 		// For each slot number in x's elements, check if y has an element
@@ -517,7 +608,8 @@ public class Leader
 			
 			if (!slotNumsInY.contains(xSlotNum))
 			{
-				System.out.println("Slot number NOT in y: " + xSlotNum);
+				// Testing.
+				//System.out.println("Slot number NOT in y: " + xSlotNum);
 				
 				// Add the elements of x with this slot number to the
 				// result list.  There should only be one? // TODO //  ///  / / / / / / /// // // /  // // // // // // // // 

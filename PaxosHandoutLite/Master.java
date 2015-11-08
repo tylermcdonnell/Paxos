@@ -23,12 +23,12 @@ public class Master {
 
 	// How long ago can the last message be sent on any NetController before
 	// we say the system is idle (in milliseconds)?
-	public final static long ALL_CLEAR_WAIT_TIME_MS = 2000;
+	public final static long ALL_CLEAR_WAIT_TIME_MS = 5000;
 	
 	// How long a recovering acceptor should wait to receive acceptor sets
 	// from other acceptors, before it stops recovering and uses the acceptor
 	// sets it has received up to this point.
-	public final static long ACCEPTOR_SET_RECEIVE_WAIT_TIME = 5000;
+	public final static long ACCEPTOR_SET_RECEIVE_WAIT_TIME = 2000;
 	
 	// A list of queues we can talk to clients with. The queue at index i is the
 	// queue that client i is continuously listening on.
@@ -281,7 +281,7 @@ public class Master {
 			
 			// Testing.
 			System.out.println("Current Time:                      " + currTime);
-			System.out.println("Checking against currTime - 2000:  " + (currTime - 2000));
+			System.out.println("Checking against currTime - 2000:  " + (currTime - Master.ALL_CLEAR_WAIT_TIME_MS));
 			
 			for (int i = 0; i < Master.netControllers.size(); i++)
 			{

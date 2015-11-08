@@ -22,6 +22,11 @@ import framework.NetController;
  */
 public class Commander
 {
+	// Scout timeout in milliseconds.
+	private static final long COMMANDER_TIMEOUT = 1000;
+		
+	private long commanderCreatedTime;
+	
 	// This Commander's unique ID in the eyes of the leader who spawned him.
 	private int uniqueId;
 	
@@ -44,6 +49,8 @@ public class Commander
 		
 	public Commander(int myLeaderId, NetController network, int numServers, PValue pvalue, int uniqueId, Timebomb timebomb)
 	{
+		this.commanderCreatedTime = System.currentTimeMillis();
+		
 		this.uniqueId = uniqueId;
 		this.network = network;
 		this.numServers = numServers;
@@ -66,6 +73,8 @@ public class Commander
 			this.network.sendMsgToServer(i, p2a);
 			// TSM: This is a message to another server that counts as a timebomb tick.
 			timebomb.tick();
+			
+			System.out.println("Commander " + this.myLeaderId + ": send p2a");
 		}
 	}
 	
@@ -77,15 +86,14 @@ public class Commander
 	 * 
 	 * @param message, the message to process.
 	 * 
-	 * @return -1, else the Commander's unique ID, at which point this 
-	 * method should not be called again for this given Commander object.
+	 * @return 
 	 */
-	public int runCommander(Message message)
+	public CommanderReturnValue runCommander(Message message)
 	{
 		// Commanders only listen for p2b messages.
 		if (message instanceof P2b)
 		{
-			System.out.println("Commander " + this.myLeaderId + " got p2b");
+			System.out.println("Commander " + this.myLeaderId + ": got p2b");
 			
 			P2b p2b = (P2b) message;
 			
@@ -141,7 +149,7 @@ public class Commander
 					
 					// This Commander is done with its tasks.
 					// This is exit() in the Paper.
-					return this.uniqueId;
+					return new CommanderReturnValue(null, this.myLeaderId, this.uniqueId);
 				}
 			}
 			else
@@ -154,11 +162,19 @@ public class Commander
 				
 				// This Commander is done with its tasks.
 				// This is exit() in the Paper.
-				return this.uniqueId;
+				return new CommanderReturnValue(null, this.myLeaderId, this.uniqueId);
 			}
 		}
 		
+		//**********************************************************************
+		//* Check if scout has timed out.
+		//**********************************************************************
+		if (System.currentTimeMillis() >= (this.commanderCreatedTime + Commander.COMMANDER_TIMEOUT))
+		{
+			return new CommanderReturnValue(this.pvalue, this.myLeaderId, -2);
+		}
+		
 		// This Commander is not done with its tasks yet.
-		return -1;
+		return new CommanderReturnValue(null, this.myLeaderId, -1);
 	}
 }

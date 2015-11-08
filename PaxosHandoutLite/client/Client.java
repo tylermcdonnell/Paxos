@@ -47,7 +47,7 @@ public class Client implements Runnable {
 	
 	// If we haven't received a response for a given command within
 	// this amount of time (in milliseconds), re-send the command.
-	private static final int RESPONSE_RESEND_PERIOD = 4000;
+	private static final int RESPONSE_RESEND_PERIOD = 10000;
 	
 	/**
 	 * Constructor.

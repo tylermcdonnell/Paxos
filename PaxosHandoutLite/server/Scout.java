@@ -18,6 +18,11 @@ import framework.NetController;
  */
 public class Scout
 {
+	// Scout timeout in milliseconds.
+	private static final long SCOUT_TIMEOUT = 1000;
+	
+	private long scoutCreatedTime;
+	
 	// This scout's unique ID in the eyes of the leader who spawned him.
 	private int uniqueId;
 	
@@ -41,6 +46,8 @@ public class Scout
 	
 	public Scout(Ballot ballot, int myLeaderId, NetController network, int numServers, int uniqueId, Timebomb timebomb)
 	{
+		this.scoutCreatedTime = System.currentTimeMillis();
+		
 		this.uniqueId = uniqueId;
 		this.network = network;
 		this.numServers = numServers;
@@ -66,6 +73,8 @@ public class Scout
 			this.network.sendMsgToServer(i, p1a);
 			// TSM: This is a message to another server that counts as a timebomb tick.
 			timebomb.tick();
+			
+			System.out.println("Scout " + this.myLeaderId + ": send p1a");
 		}
 	}
 	
@@ -84,7 +93,7 @@ public class Scout
 		// Scouts only listen for p1b messages.
 		if (message instanceof P1b)
 		{
-			System.out.println("Scout " + this.myLeaderId + " got p1b");
+			System.out.println("Scout " + this.myLeaderId + ": got p1b");
 			
 			P1b p1b = (P1b) message;
 			
@@ -154,6 +163,14 @@ public class Scout
 				// This is exit() in the Paper.
 				return this.uniqueId;
 			}
+		}
+		
+		//**********************************************************************
+		//* Check if scout has timed out.
+		//**********************************************************************
+		if (System.currentTimeMillis() >= (this.scoutCreatedTime + Scout.SCOUT_TIMEOUT))
+		{
+			return -2;
 		}
 		
 		// This Scout is not done yet.

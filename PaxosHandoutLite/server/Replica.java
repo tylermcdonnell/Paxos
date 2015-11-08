@@ -114,6 +114,7 @@ public class Replica
 			if (!this.decisions.contains(decision))
 			{
 				this.decisions.add(decision);
+				System.out.println("Replica " + this.serverId + ": added decision: " + decision);
 			}
 			
 			// Keep performing decisions in slot_num as long as we can.
@@ -125,6 +126,8 @@ public class Replica
 				// This is the decision that has slot_num (which we will
 				// perform).
 				Decision d = hasDecisionWithSlotNum(this.slot_num);
+				
+				System.out.println("Replica " + this.serverId + ": has decision with slot_num");
 				
 				// Check if there are any proposals in proposals which
 				// have the same slot number as this decision, but are
