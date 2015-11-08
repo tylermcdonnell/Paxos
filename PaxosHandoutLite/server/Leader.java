@@ -125,22 +125,11 @@ public class Leader
 			return;
 		}
 		
-		
-		
 		// On start up, leader with ID 0 is the current leader.
 		this.currentLeaderId = 0;
-		
 		if (this.isCurrentLeader())
-		{			
-			// Spawn a Scout for the initial ballot.
-			Scout firstScout = new Scout(this.currBallot, serverId, network, numServers, this.scouts.size());
-			this.scouts.add(firstScout);
-			
-			System.out.println("Leader " + this.serverId + " spanwed first Scout!");
-		}
-		else
 		{
-			// Don't spawn scouts.  Just chill.
+			this.leaderInitialization();
 		}
 		
 		// Heart beat period = .4 seconds.
@@ -181,11 +170,10 @@ public class Leader
 			if (deadLeaderIds.contains(this.currentLeaderId))
 			{
 				this.currentLeaderId += 1;
-				// TSM: If we have just become leader, set ourselves active so we 
-				//      can make progress.
+				// TSM: If we have just become leader, send out first scouts.
 				if (this.isCurrentLeader())
 				{
-					this.active = true;
+					leaderInitialization();
 				}
 			}
 		}
@@ -210,9 +198,8 @@ public class Leader
 			this.currentLeaderId = Math.max(this.currentLeaderId, hb.getCurrentLeaderId());
 			if (oldLeader != this.currentLeaderId && this.isCurrentLeader())
 			{
-				// TSM: If we have just become leader, set ourselves active so we 
-				//      can make progress.
-				this.active = true;
+				// TSM: If we have just become leader, send out first scouts.
+				leaderInitialization();
 			}
 		}
 		
@@ -417,6 +404,20 @@ public class Leader
 				}
 			}
 		}
+	}
+	
+	/**
+	 * This should be called when a process becomes a leader for the first
+	 * time, either during initialization of process 0, or when another 
+	 * process is elected leader. Sends out initial scouts.
+	 */
+	public void leaderInitialization()
+	{
+		// Spawn a Scout for the initial ballot.
+		Scout firstScout = new Scout(this.currBallot, serverId, network, numServers, this.scouts.size());
+		this.scouts.add(firstScout);
+		
+		System.out.println("Leader " + this.serverId + " spanwed first Scout!");
 	}
 	
 	
