@@ -149,10 +149,9 @@ public class Master {
 				 * Restart the server specified by nodeIndex
 				 */
 				
-				// TODO
-				// Clear net controller messages before giving it to this
-				// restarting server.
-				// TODO
+				// Clear net controller messages before restarting server.
+				getServerNetController(nodeIndex).getReceived();
+				
 				Server server = new Server(nodeIndex, getServerNetController(nodeIndex), 
 						Master.serverQueues.get(nodeIndex), Master.numberServers, 
 						Master.numberClients, true, ACCEPTOR_SET_RECEIVE_WAIT_TIME);
