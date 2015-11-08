@@ -38,8 +38,11 @@ public class Commander
 	private PValue pvalue;
 		
 	private int myLeaderId;
+	
+	// Leader's timebomb
+	private Timebomb timebomb;
 		
-	public Commander(int myLeaderId, NetController network, int numServers, PValue pvalue, int uniqueId)
+	public Commander(int myLeaderId, NetController network, int numServers, PValue pvalue, int uniqueId, Timebomb timebomb)
 	{
 		this.uniqueId = uniqueId;
 		this.network = network;
@@ -61,6 +64,8 @@ public class Commander
 		for (int i = 0; i < numServers; i++)
 		{
 			this.network.sendMsgToServer(i, p2a);
+			// TSM: This is a message to another server that counts as a timebomb tick.
+			timebomb.tick();
 		}
 	}
 	

@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -168,42 +169,17 @@ public class Master {
 				 * paxos related messages specified by numMessages
 				 */			
 				// TSM: Per instructor Piazza comments, the specified number
-				//		of messages should include:
-				//
-				//		"only unique messages to other serves. Messages within
-				//		 a server (scout or commander to their own leader),
-				//		 heartbeats, and client messages, do not count."
-				//
-				// 		Though they explicitly used the word "other" servers,
-				//		they also give an example which indicates that this
-				// 		includes messages sent to its own acceptor (i.e., itself).
-								
-
-				// Need to find out who current leader is. This will be called
-				// after allClear is called, so when a single leader is elected.
-				// How to ensure this?
-				// -- Have heart beat messages include who the server thinks the
-				// current leader is. Let Master access a Server public variable
-				// which specifies who each process thinks the current Leader
-				// is.
-				// When all are in agreement, allClear is true, and we can also
-				// find out who currrent leader is at that point, as well.
-				// TimeBombLeader tbMessage = new TimeBombLeader();
-				
-				// TSM: I don't think it's enough for allClear to simply block 
-				//		until all processes agree on a leader. allClear has to
-				// 		block until all activity in the chat room has come to
-				// 		a stand still. It seems like each process also needs to
-				// 		have some sort of status indicating whether or not there
-				// 		are any outstanding proposals. 
-				//      
-				// 		*** Unclear: is it valid to crash more than half of the 
-				//		servers using the crashServer command, then send a message,
-				//		and then call allClear? What would the expected behavior be?
-				// 		Clearly, if more than half of the servers are dead, the
-				//		protocol can not be progress. Would allClear block forever
-				//		or block until processes were waiting for a majority to 
-				// 		come back up?
+				//		of messages should include P1A and P2A messages ONLY.
+				//		This should ONLY be called after an allClear, at which
+				//		point all processes will agree on a single leader.
+				for (Iterator<Server> i = serverProcesses.iterator(); i.hasNext();)
+				{
+					Server s = i.next();
+					if (s.isLeader())
+					{
+						s.timeBomb(numMessages);
+					}
+				}
 				break;
 
 			// Added by Mike.

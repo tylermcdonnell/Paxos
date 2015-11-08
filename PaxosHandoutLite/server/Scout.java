@@ -36,7 +36,10 @@ public class Scout
 	
 	private Ballot myBallot;
 	
-	public Scout(Ballot ballot, int myLeaderId, NetController network, int numServers, int uniqueId)
+	// Leader's timebomb.
+	private Timebomb timebomb;
+	
+	public Scout(Ballot ballot, int myLeaderId, NetController network, int numServers, int uniqueId, Timebomb timebomb)
 	{
 		this.uniqueId = uniqueId;
 		this.network = network;
@@ -61,6 +64,8 @@ public class Scout
 		for (int i = 0; i < numServers; i++)
 		{
 			this.network.sendMsgToServer(i, p1a);
+			// TSM: This is a message to another server that counts as a timebomb tick.
+			timebomb.tick();
 		}
 	}
 	

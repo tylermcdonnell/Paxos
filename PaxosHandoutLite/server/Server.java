@@ -7,6 +7,7 @@ import java.util.List;
 
 import message.Decision;
 import message.Message;
+import message.P2a;
 import message.PlainMessage;
 import message.Proposal;
 import message.Request;
@@ -119,6 +120,30 @@ public class Server implements Runnable {
 		}
 	}
 	
+	/**
+	 * @return 
+	 * 		True if this process believs it is leader. Note that you
+	 * 		should only call timeBombLeader after an all clear, at 
+	 * 		which point ALL processes should agree on the same leader.		
+	 */
+	public boolean isLeader()
+	{
+		return this.leader.isLeader();
+	}
+	
+	/**
+	 * @param countdown
+	 * 		If this server believes it is the current leader, this 
+	 * 		will cause it to kill itself immediately after sending
+	 * 		countdown messages. Note that only P1A and P2A messages
+	 * 		(i.e., those sent by Scouts and Commanders to other 
+	 * 		processes qualify). If this server does not believe it
+	 * 		is the leader, this will do nothing.
+	 */
+	public void timeBomb(int countdown)
+	{
+		this.leader.timebomb(countdown);
+	}
 	
 	/**
 	 * Returns an ArrayList<Message> of the messages received over the

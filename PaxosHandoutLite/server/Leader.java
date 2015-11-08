@@ -57,6 +57,11 @@ public class Leader
 	// will contain its reference in this list.
 	private ArrayList<Scout> scouts;
 	
+	// This is used to implement the Master class test hook timeBombLeader.
+	// After the leader has sent the specified number of qualifying messages,
+	// it will immediately die.
+	private Timebomb timebomb;
+	
 	// Is this leader currently recovering?
 	public boolean isRecovering;
 	
@@ -86,6 +91,9 @@ public class Leader
 		
 		// Number of servers in the system.
 		this.numServers = numServers;
+		
+		// Initialize timebomb infrastructure.
+		this.timebomb = new Timebomb();
 		
 		if (isRecovering)
 		{
@@ -178,7 +186,6 @@ public class Leader
 			}
 		}
 		
-		
 		//**********************************************************************
 		//* Leader received HeartBeat from another leader, or itself.
 		//**********************************************************************
@@ -254,7 +261,7 @@ public class Leader
 					// Create a commander for this new proposal.
 					PValue newPValue = new PValue(this.currBallot, proposal.getSlotNum(), proposal.getCommand());
 					
-					Commander newCommander = new Commander(this.serverId, this.network, this.numServers, newPValue, this.commanders.size());
+					Commander newCommander = new Commander(this.serverId, this.network, this.numServers, newPValue, this.commanders.size(), this.timebomb);
 					this.commanders.add(newCommander);
 					
 					System.out.println("Leader " + this.serverId + " created Commander.");
@@ -306,7 +313,7 @@ public class Leader
 				Proposal currProposal = this.proposals.get(i);
 				PValue newPValue = new PValue(adopted.getBallot(), currProposal.getSlotNum(), currProposal.getCommand());
 				
-				Commander newCommander = new Commander(this.serverId, this.network, this.numServers, newPValue, this.commanders.size());
+				Commander newCommander = new Commander(this.serverId, this.network, this.numServers, newPValue, this.commanders.size(), this.timebomb);
 				this.commanders.add(newCommander);
 			}
 			
@@ -352,7 +359,7 @@ public class Leader
 				
 				// We now have a ballot larger than the ballot we were preempted
 				// with.  Spawn a Scout with this new ballot.
-				Scout newScout = new Scout(this.currBallot, serverId, network, numServers, this.scouts.size());
+				Scout newScout = new Scout(this.currBallot, serverId, network, numServers, this.scouts.size(), this.timebomb);
 				this.scouts.add(newScout);
 			}
 		}
@@ -414,12 +421,34 @@ public class Leader
 	public void leaderInitialization()
 	{
 		// Spawn a Scout for the initial ballot.
-		Scout firstScout = new Scout(this.currBallot, serverId, network, numServers, this.scouts.size());
+		Scout firstScout = new Scout(this.currBallot, serverId, network, numServers, this.scouts.size(), this.timebomb);
 		this.scouts.add(firstScout);
 		
 		System.out.println("Leader " + this.serverId + " spanwed first Scout!");
 	}
 	
+
+	/** 
+	 * Will self destruct (kill run thread) after countdown.
+	 * @param countdown
+	 * 			Kill self after sending this number of Paxos protocol
+	 * 			messages.
+	 */
+	public void timebomb(int countdown)
+	{
+		if (this.isCurrentLeader())
+		{
+			this.timebomb.set(countdown);	
+		}
+	}
+	
+	/**
+	 * @return True if this process believes it is the current leader.
+	 */
+	public boolean isLeader()
+	{
+		return this.isCurrentLeader();
+	}
 	
 	/**
 	 * Performs x \oplus y (from the Paper).
