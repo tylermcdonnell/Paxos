@@ -224,8 +224,7 @@ public class Acceptor
 				boolean ballotsEqual = this.currBallot.equals(commanderBallot);
 				boolean commanderBallotLarger = false;
 				
-				// If ballots are equal, do not call greaterThan, it will terminate program
-				// if ballots are equal.
+				// If ballots are equal, do not call greaterThan, it will return false.
 				if (!ballotsEqual)
 				{
 					commanderBallotLarger = !this.currBallot.greaterThan(commanderBallot);
