@@ -172,6 +172,20 @@ public class Master {
 				//		of messages should include P1A and P2A messages ONLY.
 				//		This should ONLY be called after an allClear, at which
 				//		point all processes will agree on a single leader.
+				int leadersFound = 0;
+				for (Iterator<Server> i = serverProcesses.iterator(); i.hasNext();)
+				{
+					Server s = i.next();
+					if (s.isLeader())
+					{
+						leadersFound += 1;
+					}
+				}
+				if (leadersFound != 1)
+				{
+					System.out.println(leadersFound + " LEADERS FOUND. THIS SHOULD NEVER HAPPEN!");
+					break;
+				}
 				for (Iterator<Server> i = serverProcesses.iterator(); i.hasNext();)
 				{
 					Server s = i.next();
