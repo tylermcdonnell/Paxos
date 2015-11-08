@@ -215,9 +215,14 @@ public class Replica
 			// (3) Add <s', p> to this replica's set of proposals.  Since this proposal
 			// has a unique slot number, we can just add it -- we don't need to take
 			// the union necessarily.
+			// FALSE -- We re-transmit commands from the client to make Paxos live in some
+			// cases.  Therefore, take union!
 			Proposal newProposal = new Proposal(lowestSlotNum, p);
-			this.proposals.add(newProposal);
-		
+			if (!this.proposals.contains(newProposal))
+			{
+				this.proposals.add(newProposal);
+			}
+			
 			// (4) Send <"propose", s', p> to all leaders.
 			sendProposalToAllLeaders(newProposal);
 		}
