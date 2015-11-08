@@ -42,6 +42,13 @@ public class Client implements Runnable {
 	// This client's view of the chat room state.
 	private State chatLog;
 	
+	// Commands we have issued to servers.
+	private ArrayList<CommandStatus> commandStatuses;
+	
+	// If we haven't received a response for a given command within
+	// this amount of time (in milliseconds), re-send the command.
+	private static final int RESPONSE_RESEND_PERIOD = 4000;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -64,6 +71,8 @@ public class Client implements Runnable {
 		
 		// Chat room log empty initially.
 		this.chatLog = new State();
+		
+		this.commandStatuses = new ArrayList<CommandStatus>();
 	}
 	
 	
@@ -104,6 +113,42 @@ public class Client implements Runnable {
 		while (true)
 		{
 			//******************************************************************
+			//* Check if we need to re-request any commands (if this client has
+			//* not received a response for a command within a given period of
+			//* time.
+			//******************************************************************
+			for (int i = 0; i < this.commandStatuses.size(); i++)
+			{
+				CommandStatus currCommandStatus = this.commandStatuses.get(i);
+
+				// If the command corresponding to this command status has not yet been
+				// received, check if we must re-send it.
+				if (!currCommandStatus.getResponseReceived())
+				{
+					// We have not yet gotten a response for the command
+					// corresponding to this command status.  Check if we must
+					// re-request it yet.
+					long currentTime = System.currentTimeMillis();
+					long nextCheckTime = currCommandStatus.getNextCheckTime();
+					if (currentTime >= nextCheckTime)
+					{
+						// We must re-send this request!
+						// Send this command to all servers.
+						sendRequestToAllServers(currCommandStatus.getCommand());
+						
+						// Update this command status' next check time, based on
+						// the old next check time.
+						currCommandStatus.setNextCheckTime(nextCheckTime + Client.RESPONSE_RESEND_PERIOD);
+						
+						// Testing.
+						System.out.println("Re-sending: " + currCommandStatus.getCommand());
+					}
+				}
+			}
+			
+			
+			
+			//******************************************************************
 			//* MASTER MESSAGES
 			//******************************************************************
 			
@@ -119,8 +164,14 @@ public class Client implements Runnable {
 				// Construct a Command with this message as the operation.
 				Command command = new Command(this.id, this.getNextCid(), masterMessages.get(i));
 				
+				// Remember that we requested this Command.
+				this.commandStatuses.add(new CommandStatus(command, System.currentTimeMillis(), System.currentTimeMillis() + Client.RESPONSE_RESEND_PERIOD));
+				
 				// Send this command to all servers.
 				sendRequestToAllServers(command);
+				
+				// Testing
+				System.out.println("Sending: " + command);
 			}
 			
 			
@@ -152,6 +203,7 @@ public class Client implements Runnable {
 					// replicas send a performed decision to the client
 					// who issued the command).
 					StateEntry result = response.getResult();
+					
 					synchronized(this.chatLog)
 					{
 						if (!this.chatLog.getState().contains(result))
@@ -163,6 +215,21 @@ public class Client implements Runnable {
 		
 					// Testing.  Print out this client's view of chat room.
 					printChatLog();
+					
+					// Note that we have received a response to this command.
+					Command commandReceived = response.getResult().getCommand();
+					
+					// Find the command that we just received a response for.
+					for (int j = 0; j < this.commandStatuses.size(); j++)
+					{
+						CommandStatus currCommandStatus = this.commandStatuses.get(j);
+						Command currCommand = currCommandStatus.getCommand();
+						if (currCommand.equals(commandReceived))
+						{
+							// Note that this command has received a response.
+							currCommandStatus.setResponseReceived();
+						}
+					}
 				}
 				
 				// Communication testing.
