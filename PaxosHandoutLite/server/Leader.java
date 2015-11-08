@@ -60,7 +60,6 @@ public class Leader
 	// Is this leader currently recovering?
 	public boolean isRecovering;
 	
-	
 	public Leader(int serverId, int numServers, NetController network, boolean isRecovering)
 	{
 		this.isRecovering = isRecovering;
@@ -164,17 +163,31 @@ public class Leader
 		if (deadLeaderIds != null)
 		{
 			// Testing.
+			/*
 			System.out.print("Leader " + this.serverId + " dead leaders detected: ");
 			for (int i = 0; i < deadLeaderIds.size(); i++)
 			{
 				System.out.print(deadLeaderIds.get(i) + ", ");
 			}
 			System.out.println();
+			*/
 			
 			//****************************************
 			// Leader Election logic for if current leader dies.
 			//****************************************
-			// TODO 
+			// If we observe that the process we believe to be the leader is dead,
+			// we choose N + 1 as the new leader. Note that this is the raw value
+			// and not the value mod N (actual process ID)
+			if (deadLeaderIds.contains(this.currentLeaderId))
+			{
+				this.currentLeaderId += 1;
+				// TSM: If we have just become leader, set ourselves active so we 
+				//      can make progress.
+				if (this.isCurrentLeader())
+				{
+					this.active = true;
+				}
+			}
 		}
 		
 		
@@ -190,7 +203,17 @@ public class Leader
 			//*****************************************************************
 			//* Leader election logic for if someone has a higher current ID
 			//*****************************************************************
-			// TODO
+			// Here, we take the max of our own belief about the current leader
+			// and everyone else's belief about the current leader. We use the
+			// raw (not taken mod N) value so that we can use simple max() logic.
+			int oldLeader = this.currentLeaderId;
+			this.currentLeaderId = Math.max(this.currentLeaderId, hb.getCurrentLeaderId());
+			if (oldLeader != this.currentLeaderId && this.isCurrentLeader())
+			{
+				// TSM: If we have just become leader, set ourselves active so we 
+				//      can make progress.
+				this.active = true;
+			}
 		}
 		
 		
@@ -315,9 +338,14 @@ public class Leader
 			// The Ballot which we were preempted with.
 			Ballot preemptingBallot = preempted.getBallot();
 			
-			// If the preempting ballot was indeed larger than our current
-			// ballot (perhaps a preempted message is coming in late).
-			if (preemptingBallot.greaterThan(this.currBallot))
+			// TSM: If the the process that pre-empted us has a greater leader ID, resign.
+			if (preemptingBallot.getLeaderId() > this.currentLeaderId)
+			{
+				this.currentLeaderId = preemptingBallot.getLeaderId();
+				this.active = false;
+				return;
+			}
+			else if (preemptingBallot.greaterThan(this.currBallot))
 			{
 				this.active = false;
 				
@@ -594,7 +622,7 @@ public class Leader
 	 */
 	private boolean isCurrentLeader()
 	{
-		return (this.currentLeaderId == this.serverId);
+		return ((this.currentLeaderId % this.numServers) == this.serverId);
 	}	
 }
 
