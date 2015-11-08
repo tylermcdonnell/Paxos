@@ -41,8 +41,6 @@ public class Ballot implements Serializable
 	
 	/**
 	 * Returns true iff this Ballot is greater than Ballot y.
-	 * If two equal ballots are given, error message is printed and
-	 * program terminates.
 	 * 
 	 * @param y, Ballot y.
 	 * 
@@ -53,11 +51,14 @@ public class Ballot implements Serializable
 		// Check if this is the same ballot.
 		if ((this.ballotId == y.ballotId) && (this.leaderId == y.leaderId))
 		{
+			return false;
+			/*
 			System.out.println("Comparing two equal ballots in greaterThan(Ballot y).");
 			System.out.println("x: " + this);
 			System.out.println("y: " + y);
 			System.out.println("Exiting.");
 			System.exit(-1);
+			*/
 		}
 		
 		// A ballot will be (ballotId, leaderId), and two ballots
