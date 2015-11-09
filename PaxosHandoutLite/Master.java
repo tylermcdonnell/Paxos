@@ -157,6 +157,7 @@ public class Master {
 						Master.serverQueues.get(nodeIndex), Master.numberServers, 
 						Master.numberClients, true, ACCEPTOR_SET_RECEIVE_WAIT_TIME);
 				
+				serverProcesses.set(nodeIndex, server);
 				Thread serverThread = new Thread(server);
 				serverThread.start();
 				
