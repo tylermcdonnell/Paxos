@@ -1,0 +1,11 @@
+start 3 3
+sendMessage 0 "1"
+sendMessage 0 "2"
+sendMessage 0 "3"
+sendMessage 0 "4"
+sendMessage 0 "5"
+sendMessage 0 "6"
+sendMessage 0 "7"
+sendMessage 0 "8"
+sendMessage 0 "9"
+sendMessage 0 "10"
