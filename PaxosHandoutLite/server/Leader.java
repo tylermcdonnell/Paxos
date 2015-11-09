@@ -75,6 +75,10 @@ public class Leader
 	// timed out.
 	private ArrayList<PValue> commandersWaiting;
 	
+	// Copy of the most recent list of dead processes from the HBG. 
+	// Note: Debugging purposes only.
+	private ArrayList<Integer> heartbeatSnapshot;
+	
 	public Leader(int serverId, int numServers, NetController network, boolean isRecovering)
 	{
 		this.scoutWaiting = false;
@@ -166,6 +170,9 @@ public class Leader
 		// leaders we believe to be dead now.
 		if (deadLeaderIds != null)
 		{
+			// Update debug copy of dead list.
+			this.heartbeatSnapshot = deadLeaderIds;
+			
 			//******************************************************************
 			//* If majority of servers are up, and scout timed out, restart
 			//* scout.
@@ -533,6 +540,28 @@ public class Leader
 	public boolean isLeader()
 	{
 		return this.isCurrentLeader();
+	}
+	
+	/**
+	 * Prints out a summary of this process' state. This should only
+	 * be used for debug purposes. :)
+	 */
+	public void whois()
+	{
+		System.out.println("Process " + this.serverId + " summary.");
+		System.out.println("--------------------------------------");
+		System.out.println("Leader: " + this.currentLeaderId);
+		for (int i = 0; i < this.numServers; i++)
+		{
+			if (this.heartbeatSnapshot.contains(i))
+			{
+				System.out.println("Server " + i + ": " + "DEAD");
+			}
+			else
+			{
+				System.out.println("Server " + i + ": " + "ALIVE");
+			}
+		}
 	}
 	
 	/**

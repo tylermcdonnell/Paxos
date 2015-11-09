@@ -146,6 +146,14 @@ public class Server implements Runnable {
 	}
 	
 	/**
+	 * Prints a state dump of this server. For debugging purposes only.
+	 */
+	public void whois()
+	{
+		this.leader.whois();
+	}
+	
+	/**
 	 * Returns an ArrayList<Message> of the messages received over the
 	 * network at the time this method is called.
 	 * 

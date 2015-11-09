@@ -195,6 +195,26 @@ public class Master {
 					}
 				}
 				break;
+				
+			// Added by Tyler.
+			case "whois":
+				/*
+				 * This will print a state dump of the specified process.
+				 * You may provide "a" as an input to print all processes.
+				 */
+				if (inputLine[1].equals("a"))
+				{
+					for (Iterator<Server> i = serverProcesses.iterator(); i.hasNext();)
+					{
+						i.next().whois();
+					}
+				}
+				else
+				{
+					int processId = Integer.parseInt(inputLine[1]);
+					serverProcesses.get(processId).whois();
+				}
+				break;
 
 			// Added by Mike.
 			case "commTest":
