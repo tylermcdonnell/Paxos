@@ -116,7 +116,7 @@ public class Leader
 		{
 			// Heart beat period = .4 seconds.
 			// Update system view period = 2 seconds.
-			this.hbg = new HeartBeatGenerator(serverId, network, numServers, 400, 2000);
+			this.hbg = new HeartBeatGenerator(serverId, network, numServers);
 			
 			ArrayList<Integer> deadProcesses = null;
 			
@@ -149,7 +149,7 @@ public class Leader
 		
 		// Heart beat period = .4 seconds.
 		// Update system view period = 2 seconds.
-		this.hbg = new HeartBeatGenerator(serverId, network, numServers, 400, 2000);
+		this.hbg = new HeartBeatGenerator(serverId, network, numServers);
 		
 		if (this.isCurrentLeader())
 		{
