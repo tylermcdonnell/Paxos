@@ -270,11 +270,13 @@ public class Master {
 	{
 		// Wait for:
 		// (1) all leaders to finish recovering (if any are recovering currently)
-		// (2) the last message sent on any NetController is more than one second ago
+		// (2) all acceptors to finish recovering (if any are recovering currently)
+		// (3) the last message sent on any NetController is more than one second ago
 		while (true)
 		{
 			boolean noLeaderRecovering = true;
 			boolean noMessagesSentLastSecond = true;
+			boolean noAcceptorRecovering = true;
 			
 			// Check if any leader is recovering.
 			for (int i = 0; i < Master.serverProcesses.size(); i++)
@@ -293,6 +295,27 @@ public class Master {
 					if (currServer.leader.isRecovering == true)
 					{
 						noLeaderRecovering = false;
+					}
+				}
+			}
+			
+			// Check if any acceptor is recovering.
+			for (int i = 0; i < Master.serverProcesses.size(); i++)
+			{
+				Server currServer = Master.serverProcesses.get(i);
+				
+				// Make sure leader was created, since Server thread may have
+				// not created its leader yet.
+				if (currServer.acceptor == null)
+				{
+					noAcceptorRecovering = false;
+				}
+				else
+				{
+					// Acceptor is not null, we can check its field.
+					if (currServer.acceptor.isRecovering == true)
+					{
+						noAcceptorRecovering = false;
 					}
 				}
 			}
@@ -319,7 +342,7 @@ public class Master {
 				}
 			}
 			
-			if (noLeaderRecovering && noMessagesSentLastSecond)
+			if (noLeaderRecovering && noMessagesSentLastSecond && noAcceptorRecovering)
 			{
 				// Mission accomplished!
 				return;

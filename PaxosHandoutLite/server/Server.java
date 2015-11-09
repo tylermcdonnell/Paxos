@@ -28,7 +28,7 @@ public class Server implements Runnable {
 	private Replica replica;
 	
 	// This server's Acceptor.
-	private Acceptor acceptor;
+	public Acceptor acceptor;
 	
 	// This server's Leader.  Make public so the Master class can view
 	// the leader's public variables.
