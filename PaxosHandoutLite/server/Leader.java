@@ -135,7 +135,7 @@ public class Leader
 			// We can now determine, from the heart beats, who to set as our current
 			// leader.  It will not be us, because we are assuming that a server
 			// can die and recover within a single update heart beat period.
-			//this.currentLeaderId = ???
+			this.currentLeaderId = hbg.getBelievedLeader();
 			
 			// Let it be known that we are done recovering, so allClear can
 			// stop waiting on us.
@@ -146,14 +146,15 @@ public class Leader
 		
 		// On start up, leader with ID 0 is the current leader.
 		this.currentLeaderId = 0;
-		if (this.isCurrentLeader())
-		{
-			this.leaderInitialization();
-		}
 		
 		// Heart beat period = .4 seconds.
 		// Update system view period = 2 seconds.
 		this.hbg = new HeartBeatGenerator(serverId, network, numServers, 400, 2000);
+		
+		if (this.isCurrentLeader())
+		{
+			this.leaderInitialization();
+		}
 	}
 	
 	
@@ -398,13 +399,13 @@ public class Leader
 			Ballot preemptingBallot = preempted.getBallot();
 			
 			// TSM: If the the process that pre-empted us has a greater leader ID, resign.
-			if (preemptingBallot.getLeaderId() > this.currentLeaderId)
-			{
-				this.currentLeaderId = preemptingBallot.getLeaderId();
-				this.active = false;
-				return;
-			}
-			else if (preemptingBallot.greaterThan(this.currBallot))
+			//if (preemptingBallot.getLeaderId() > this.currentLeaderId)
+			//{
+			//	this.currentLeaderId = preemptingBallot.getLeaderId();
+			//	this.active = false;
+			//	return;
+			//}
+			if (preemptingBallot.greaterThan(this.currBallot))
 			{
 				this.active = false;
 				
