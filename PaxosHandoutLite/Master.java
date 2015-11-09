@@ -216,7 +216,7 @@ public class Master {
 			 */
 			if (inputLine[1].equals("a"))
 			{
-				for (Iterator<Server> i = serverProcesses.iterator(); i.hasNext();)
+				for (Iterator<Server> i = getLiveServers().iterator(); i.hasNext();)
 				{
 					i.next().whois();
 				}
@@ -267,7 +267,7 @@ public class Master {
 	}
 	
 	private static void runScript(String filename) {
-		try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+		try (BufferedReader br = new BufferedReader(new FileReader("PaxosHandoutLite/tests/" + filename))) {
 			String line;
 			while ((line = br.readLine()) != null) {
 				if (line.startsWith("/")) {
@@ -287,6 +287,19 @@ public class Master {
 			System.out.println("Error while running script.");
 			exc.printStackTrace();
 		}
+	}
+	
+	private static ArrayList<Server> getLiveServers()
+	{
+		ArrayList<Server> live = new ArrayList<Server>();
+		for (int i = 0 ; i < serverThreads.size(); i++)
+		{
+			if (serverThreads.get(i).isAlive())
+			{
+				live.add(serverProcesses.get(i));
+			}
+		}
+		return live;
 	}
 	
 	/**
