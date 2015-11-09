@@ -1,6 +1,7 @@
 package client;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -279,12 +280,15 @@ public class Client implements Runnable {
 		
 		synchronized(this.chatLog)
 		{
-			for (int i = 0; i < this.chatLog.getState().size(); i++)
+			ArrayList<StateEntry> entries = this.chatLog.getState();
+			Collections.sort(entries);
+			
+			for (int i = 0; i < entries.size(); i++)
 			{
-				StateEntry currEntry = this.chatLog.getState().get(i);
+				StateEntry currEntry = entries.get(i);
 				
-				System.out.println(currEntry.getSlotNumber() + " " 
-						+ currEntry.getCommand().getClientId() + " " 
+				System.out.println(i + " " 
+						+ currEntry.getCommand().getClientId() + ": " 
 						+ currEntry.getCommand().getOperation());
 			}
 			System.out.println();
