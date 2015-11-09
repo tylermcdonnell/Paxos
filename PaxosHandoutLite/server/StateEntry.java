@@ -9,7 +9,7 @@ import client.Command;
  * @author Mike Feilbach
  *
  */
-public class StateEntry implements Serializable
+public class StateEntry implements Serializable, Comparable<StateEntry>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -40,7 +40,6 @@ public class StateEntry implements Serializable
 		return retVal;
 	}
 	
-	
 	@Override
 	public boolean equals(Object o)
 	{
@@ -68,6 +67,24 @@ public class StateEntry implements Serializable
 		}
 		
 		return false;
+	}
+	
+	public int compareTo(StateEntry otherEntry)
+	{
+		System.out.println("CALLED");
+		if (this.getSlotNumber() < otherEntry.getSlotNumber())
+		{
+			return -1;
+		}
+		else if (this.getSlotNumber() > otherEntry.getSlotNumber())
+		{
+			return 1;
+		}
+		else
+		{
+			// Equal.
+			return 0;
+		}
 	}
 	
 }
