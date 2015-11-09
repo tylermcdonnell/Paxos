@@ -70,11 +70,11 @@ public class Acceptor
 		this.recoveryStopWaitTime = recoveryWaitTime + System.currentTimeMillis();
 		
 		// Testing.
-		if (this.isRecovering)
-		{
-			System.out.println("Current time:  " + System.currentTimeMillis());
-			System.out.println("Waiting until: " + this.recoveryStopWaitTime);
-		}
+		//if (this.isRecovering)
+		//{
+		//	System.out.println("Current time:  " + System.currentTimeMillis());
+		//	System.out.println("Waiting until: " + this.recoveryStopWaitTime);
+		//}
 	}
 	
 	public void runTasks(Message message)
@@ -123,7 +123,7 @@ public class Acceptor
 			if (System.currentTimeMillis() >= this.recoveryStopWaitTime)
 			{
 				this.isRecovering = false;
-				System.out.println("DONE RECOVERING: Current time: " + System.currentTimeMillis());
+				System.out.println("Acceptor " + this.serverId + " done recovering: Current time: " + System.currentTimeMillis());
 			}
 			
 			// If still recovering, do not execute commands on messages.
@@ -156,7 +156,7 @@ public class Acceptor
 		{
 			P1a p1a = (P1a) message;
 			
-			System.out.println("Acceptor got p1a from Scout " + p1a.getMyLeaderId() + ": " + p1a);
+			//System.out.println("Acceptor got p1a from Scout " + p1a.getMyLeaderId() + ": " + p1a);
 			
 			// If the scout's ballot is larger than this acceptor's.
 			boolean scoutBallotLarger = false;
@@ -206,7 +206,7 @@ public class Acceptor
 		{
 			P2a p2a = (P2a) message;
 			
-			System.out.println("Acceptor got p2a from Commander " + p2a.getMyLeaderId() + ": " + p2a);
+			//System.out.println("Acceptor got p2a from Commander " + p2a.getMyLeaderId() + ": " + p2a);
 			
 			// If commander ballot is larger than or equal to this acceptor's.
 			boolean commanderBallotIsLargerOrEqual = false;

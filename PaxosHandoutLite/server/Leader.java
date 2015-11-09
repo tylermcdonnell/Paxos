@@ -440,7 +440,7 @@ public class Leader
 					// of servers are back up.
 					this.scoutWaiting = true;
 					
-					System.out.println("Scout " + this.serverId + "timed out.");
+					System.out.println("Scout " + this.serverId + " timed out.");
 					
 					this.scouts.add(i, null);
 					this.scouts.remove(i + 1);
@@ -477,7 +477,7 @@ public class Leader
 					// of servers are back up.
 					this.commandersWaiting.add(commanderReturnValue.getPValue());
 					
-					System.out.println("Commander " + this.serverId + "timed out.");
+					System.out.println("Commander " + this.serverId + " timed out.");
 					
 					this.commanders.add(i, null);
 					this.commanders.remove(i + 1);

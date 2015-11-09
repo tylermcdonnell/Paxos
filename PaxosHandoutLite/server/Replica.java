@@ -127,7 +127,8 @@ public class Replica
 				// perform).
 				Decision d = hasDecisionWithSlotNum(this.slot_num);
 				
-				System.out.println("Replica " + this.serverId + ": has decision with slot_num");
+				// Testing.
+				//System.out.println("Replica " + this.serverId + ": has decision with slot_num");
 				
 				// Check if there are any proposals in proposals which
 				// have the same slot number as this decision, but are
@@ -148,7 +149,7 @@ public class Replica
 					}
 				}
 				
-				// TODO: This loop should only execute once if ever, since
+				// TODO: This loop should only loop once if ever, since
 				// there should only be one proposal for any given slot in
 				// proposals.  Modify this later on.
 				for (int i = 0; i < proposalsForSlotNum.size(); i++)
@@ -351,6 +352,7 @@ public class Replica
 				if (currDecision.getProposal().getSlotNum() < this.slot_num)
 				{
 					// Skip this command, we've already done it.
+					System.out.println("Skipping command: " + p);
 					this.slot_num++;
 					return;
 				}
