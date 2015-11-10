@@ -164,7 +164,6 @@ public class Server implements Runnable {
 	private ArrayList<Message> getNetworkMessages()
 	{
 		ArrayList<Message> messagesFromNet = new ArrayList<Message>();
-		
 		List<Message> received = this.network.getReceived();
 		for (Iterator<Message> i = received.iterator(); i.hasNext();)
 		{
