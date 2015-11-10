@@ -1,7 +1,11 @@
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.PrintWriter;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Scanner;
@@ -17,6 +21,7 @@ import message.Message;
 import message.Proposal;
 import message.Request;
 import message.TimeBombLeader;
+import server.HeartBeatGenerator;
 import server.Server;
 
 public class Master {
@@ -63,205 +68,239 @@ public class Master {
 
 	public static void main(String[] args) {
 		Scanner scan = new Scanner(System.in);
-		int numNodes, numClients;
-
-		// Added by Mike.
-		int serverIndex;
 
 		while (scan.hasNextLine()) {
 			String[] inputLine = scan.nextLine().split(" ");
-			int clientIndex, nodeIndex;
-			System.out.println(inputLine[0]);
-			switch (inputLine[0]) {
-
-			case "start":
-				numNodes = Integer.parseInt(inputLine[1]);
-				numClients = Integer.parseInt(inputLine[2]);
-				/*
-				 * start up the right number of nodes and clients, and store the
-				 * connections to them for sending further commands
-				 */
-
-				start(numClients, numNodes);
-
-				break;
-
-			case "sendMessage":
-				clientIndex = Integer.parseInt(inputLine[1]);
-				String message = "";
-				for (int i = 2; i < inputLine.length; i++) {
-					message += inputLine[i];
-					if (i != inputLine.length - 1) {
-						message += " ";
-					}
-				}
-				/*
-				 * Instruct the client specified by clientIndex to send the
-				 * message to the proper paxos node
-				 */
-
-				// Testing.
-				System.out.println("Sending message to Client " + clientIndex + ": " + message);
-
-				// Send the client the message.
-				clientProcesses.get(clientIndex).giveClientCommand(message);
-
-				break;
-
-			case "printChatLog":
-				clientIndex = Integer.parseInt(inputLine[1]);
-				/*
-				 * Print out the client specified by clientIndex's chat history
-				 * in the format described on the handout.
-				 */
-				Master.clientProcesses.get(clientIndex).printChatLog();
-
-				break;
-
-			case "allClear":
-				/*
-				 * Ensure that this blocks until all messages that are going to
-				 * come to consensus in PAXOS do, and that all clients have
-				 * heard of them
-				 */
-				
-				// Wait for:
-				// (1) all leaders to finish recovering (if any are recovering currently)
-				// (2) the last message sent on any NetController is more than one second ago
-				allClear();
-				
-				System.out.println("All clear returned!");
-				
-				break;
-
-			case "crashServer":
-				nodeIndex = Integer.parseInt(inputLine[1]);
-
-				/*
-				 * Immediately crash the server specified by nodeIndex
-				 */
-				Master.serverThreads.get(nodeIndex).stop();
-
-				break;
-
-			case "restartServer":
-				nodeIndex = Integer.parseInt(inputLine[1]);
-				/*
-				 * Restart the server specified by nodeIndex
-				 */
-				
-				// Clear net controller messages before restarting server.
-				getServerNetController(nodeIndex).getReceived();
-				
-				Server server = new Server(nodeIndex, getServerNetController(nodeIndex), 
-						Master.serverQueues.get(nodeIndex), Master.numberServers, 
-						Master.numberClients, true, ACCEPTOR_SET_RECEIVE_WAIT_TIME);
-				
-				serverProcesses.set(nodeIndex, server);
-				Thread serverThread = new Thread(server);
-				serverThread.start();
-				
-				break;
-
-			case "timeBombLeader":
-				int numMessages = Integer.parseInt(inputLine[1]);
-				/*
-				 * Instruct the leader to crash after sending the number of
-				 * paxos related messages specified by numMessages
-				 */			
-				// TSM: Per instructor Piazza comments, the specified number
-				//		of messages should include P1A and P2A messages ONLY.
-				//		This should ONLY be called after an allClear, at which
-				//		point all processes will agree on a single leader.
-				int leadersFound = 0;
-				for (Iterator<Server> i = serverProcesses.iterator(); i.hasNext();)
-				{
-					Server s = i.next();
-					if (s.isLeader())
-					{
-						leadersFound += 1;
-					}
-				}
-				if (leadersFound != 1)
-				{
-					System.out.println(leadersFound + " LEADERS FOUND. THIS SHOULD NEVER HAPPEN!");
-					break;
-				}
-				for (Iterator<Server> i = serverProcesses.iterator(); i.hasNext();)
-				{
-					Server s = i.next();
-					if (s.isLeader())
-					{
-						s.timeBomb(numMessages);
-					}
-				}
-				break;
-				
-			// Added by Tyler.
-			case "whois":
-				/*
-				 * This will print a state dump of the specified process.
-				 * You may provide "a" as an input to print all processes.
-				 */
-				if (inputLine[1].equals("a"))
-				{
-					for (Iterator<Server> i = serverProcesses.iterator(); i.hasNext();)
-					{
-						i.next().whois();
-					}
-				}
-				else
-				{
-					int processId = Integer.parseInt(inputLine[1]);
-					serverProcesses.get(processId).whois();
-				}
-				break;
-
-			// Added by Mike.
-			case "commTest":
-
-				// Make sure NetControllers between servers and clients are
-				// working nicely.
-				commTest();
-
-				break;
-
-			// Added by Mike.
-			case "ServQueueTest":
-
-				start(2, 2);
-
-				// Make sure server queues are working nicely.
-				serverIndex = Integer.parseInt(inputLine[1]);
-				serverQueues.get(serverIndex).add("Hello server " + serverIndex);
-
-				break;
-
-			// Added by Mike.
-			case "sendServerDecisionTest":
-
-				sendServerDecisionTest();
-
-				break;
-
-			// Added by Mike.
-			case "ballotTest":
-
-				ballotTest();
-
-				break;
-
-			// Added by Mike.
-			case "test":
-
-				test();
-
-				break;
-
-			} // End switch
+			execute(inputLine);
 		} // End while
 	} // End main
 
+	private static void execute(String [] inputLine)
+	{
+		// Parsed variables common to several commands.
+		int serverIndex;
+		int numNodes, numClients;
+		int clientIndex, nodeIndex;
+		
+		System.out.println(inputLine[0]);
+		switch (inputLine[0]) {
+
+		case "start":
+			numNodes = Integer.parseInt(inputLine[1]);
+			numClients = Integer.parseInt(inputLine[2]);
+			/*
+			 * start up the right number of nodes and clients, and store the
+			 * connections to them for sending further commands
+			 */
+
+			start(numClients, numNodes);
+
+			break;
+
+		case "sendMessage":
+			clientIndex = Integer.parseInt(inputLine[1]);
+			String message = "";
+			for (int i = 2; i < inputLine.length; i++) {
+				message += inputLine[i];
+				if (i != inputLine.length - 1) {
+					message += " ";
+				}
+			}
+			/*
+			 * Instruct the client specified by clientIndex to send the
+			 * message to the proper paxos node
+			 */
+
+			// Testing.
+			System.out.println("Sending message to Client " + clientIndex + ": " + message);
+
+			// Send the client the message.
+			clientProcesses.get(clientIndex).giveClientCommand(message);
+
+			break;
+
+		case "printChatLog":
+			clientIndex = Integer.parseInt(inputLine[1]);
+			/*
+			 * Print out the client specified by clientIndex's chat history
+			 * in the format described on the handout.
+			 */
+			Master.clientProcesses.get(clientIndex).printChatLog();
+
+			break;
+
+		case "allClear":
+			/*
+			 * Ensure that this blocks until all messages that are going to
+			 * come to consensus in PAXOS do, and that all clients have
+			 * heard of them
+			 */
+			
+			// Wait for:
+			// (1) all leaders to finish recovering (if any are recovering currently)
+			// (2) the last message sent on any NetController is more than one second ago
+			allClear();
+			
+			System.out.println("All clear returned!");
+			
+			break;
+
+		case "crashServer":
+			nodeIndex = Integer.parseInt(inputLine[1]);
+
+			/*
+			 * Immediately crash the server specified by nodeIndex
+			 */
+			Master.serverThreads.get(nodeIndex).stop();
+
+			break;
+
+		case "restartServer":
+			nodeIndex = Integer.parseInt(inputLine[1]);
+			/*
+			 * Restart the server specified by nodeIndex
+			 */
+			
+			// Clear net controller messages before restarting server.
+			getServerNetController(nodeIndex).getReceived();
+			
+			Server server = new Server(nodeIndex, getServerNetController(nodeIndex), 
+					Master.serverQueues.get(nodeIndex), Master.numberServers, 
+					Master.numberClients, true, ACCEPTOR_SET_RECEIVE_WAIT_TIME);
+			
+			serverProcesses.set(nodeIndex, server);
+			Thread serverThread = new Thread(server);
+			serverThread.start();
+			
+			break;
+
+		case "timeBombLeader":
+			int numMessages = Integer.parseInt(inputLine[1]);
+			/*
+			 * Instruct the leader to crash after sending the number of
+			 * paxos related messages specified by numMessages
+			 */			
+			// TSM: Per instructor Piazza comments, the specified number
+			//		of messages should include P1A and P2A messages ONLY.
+			//		This should ONLY be called after an allClear, at which
+			//		point all processes will agree on a single leader.
+			int leadersFound = 0;
+			for (Iterator<Server> i = serverProcesses.iterator(); i.hasNext();)
+			{
+				Server s = i.next();
+				if (s.isLeader())
+				{
+					leadersFound += 1;
+				}
+			}
+			if (leadersFound != 1)
+			{
+				System.out.println(leadersFound + " LEADERS FOUND. THIS SHOULD NEVER HAPPEN!");
+				break;
+			}
+			for (Iterator<Server> i = serverProcesses.iterator(); i.hasNext();)
+			{
+				Server s = i.next();
+				if (s.isLeader())
+				{
+					s.timeBomb(numMessages);
+				}
+			}
+			break;
+			
+		// Added by Tyler.
+		case "whois":
+			/*
+			 * This will print a state dump of the specified process.
+			 * You may provide "a" as an input to print all processes.
+			 */
+			if (inputLine[1].equals("a"))
+			{
+				for (Iterator<Server> i = getLiveServers().iterator(); i.hasNext();)
+				{
+					i.next().whois();
+				}
+			}
+			else
+			{
+				int processId = Integer.parseInt(inputLine[1]);
+				serverProcesses.get(processId).whois();
+			}
+			break;
+
+		// Added by Mike.
+		case "commTest":
+			// Make sure NetControllers between servers and clients are
+			// working nicely.
+			commTest();
+			break;
+
+		// Added by Mike.
+		case "ServQueueTest":
+			start(2, 2);
+			// Make sure server queues are working nicely.
+			serverIndex = Integer.parseInt(inputLine[1]);
+			serverQueues.get(serverIndex).add("Hello server " + serverIndex);
+			break;
+
+		// Added by Mike.
+		case "sendServerDecisionTest":
+			sendServerDecisionTest();
+			break;
+
+		// Added by Mike.
+		case "ballotTest":
+			ballotTest();
+			break;
+
+		// Added by Mike.
+		case "test":
+			test();
+			break;
+			
+		case "script":
+			String filename = inputLine[1];
+			runScript(filename);
+			break;
+
+		} // End switch	
+	}
+	
+	private static void runScript(String filename) {
+		try (BufferedReader br = new BufferedReader(new FileReader("PaxosHandoutLite/tests/" + filename))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				if (line.startsWith("/")) {
+					continue;
+				}
+				
+				if (line.equals(""))
+				{
+					continue;
+				}
+
+				String[] inputLine = line.split(" ");
+				
+				execute(inputLine);
+			}
+		} catch (Exception exc) {
+			System.out.println("Error while running script.");
+			exc.printStackTrace();
+		}
+	}
+	
+	private static ArrayList<Server> getLiveServers()
+	{
+		ArrayList<Server> live = new ArrayList<Server>();
+		for (int i = 0 ; i < serverThreads.size(); i++)
+		{
+			if (serverThreads.get(i).isAlive())
+			{
+				live.add(serverProcesses.get(i));
+			}
+		}
+		return live;
+	}
 	
 	/**
 	 * See description in main loop.
@@ -270,11 +309,20 @@ public class Master {
 	{
 		// Wait for:
 		// (1) all leaders to finish recovering (if any are recovering currently)
-		// (2) the last message sent on any NetController is more than one second ago
+		// (2) all acceptors to finish recovering (if any are recovering currently)
+		// (3) the last message sent on any NetController is more than one second ago
+		// (4) at least one heart beat period has elapsed. This ensures that if
+		//     we have just crashed a server, allClear does not return until other
+		//	   processes see and react to that process dying.
+		
+		// For (4), we need to wait at least one heartbeat period.
+		long minWait = System.currentTimeMillis() + HeartBeatGenerator.updateSystemViewPeriod;
+		
 		while (true)
 		{
 			boolean noLeaderRecovering = true;
 			boolean noMessagesSentLastSecond = true;
+			boolean noAcceptorRecovering = true;
 			
 			// Check if any leader is recovering.
 			for (int i = 0; i < Master.serverProcesses.size(); i++)
@@ -297,18 +345,39 @@ public class Master {
 				}
 			}
 			
+			// Check if any acceptor is recovering.
+			for (int i = 0; i < Master.serverProcesses.size(); i++)
+			{
+				Server currServer = Master.serverProcesses.get(i);
+				
+				// Make sure leader was created, since Server thread may have
+				// not created its leader yet.
+				if (currServer.acceptor == null)
+				{
+					noAcceptorRecovering = false;
+				}
+				else
+				{
+					// Acceptor is not null, we can check its field.
+					if (currServer.acceptor.isRecovering == true)
+					{
+						noAcceptorRecovering = false;
+					}
+				}
+			}
+			
 			// Check if any NetController has sent a message in the last second.
 			long currTime = System.currentTimeMillis();
 			
 			// Testing.
-			System.out.println("Current Time:                      " + currTime);
-			System.out.println("Checking against currTime - 2000:  " + (currTime - Master.ALL_CLEAR_WAIT_TIME_MS));
+			//System.out.println("Current Time:                      " + currTime);
+			//System.out.println("Checking against currTime - 2000:  " + (currTime - Master.ALL_CLEAR_WAIT_TIME_MS));
 			
 			for (int i = 0; i < Master.netControllers.size(); i++)
 			{
 				NetController currNetController = Master.netControllers.get(i);
 				
-				System.out.println("NetController last send time:      " + currNetController.lastMessageTime());
+				//System.out.println("NetController last send time:      " + currNetController.lastMessageTime());
 				
 				if (currNetController.lastMessageTime() >= (currTime - Master.ALL_CLEAR_WAIT_TIME_MS))
 				{
@@ -319,7 +388,10 @@ public class Master {
 				}
 			}
 			
-			if (noLeaderRecovering && noMessagesSentLastSecond)
+			if (noLeaderRecovering && 
+			    noMessagesSentLastSecond && 
+			    noAcceptorRecovering &&
+			    System.currentTimeMillis() > minWait)
 			{
 				// Mission accomplished!
 				return;

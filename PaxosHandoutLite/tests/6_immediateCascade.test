@@ -1,0 +1,10 @@
+start 10 10
+crashServer 1
+allClear
+crashServer 2
+allClear
+crashServer 3
+allClear
+crashServer 0
+allClear
+whois a

@@ -25,12 +25,12 @@ public class HeartBeatGenerator
 	// view period should be a multiple of this, in case we don't always
 	// send heart beats at the heart beat period exactly from other work
 	// a server may be handling at the time.  This is in ms.
-	private long heartBeatPeriod;
+	public static final long heartBeatPeriod = 400;
 	
 	// How often we will analyze the heat beat messages that came in in the
 	// previous period, and determine who is "dead" and who is "alive" at
 	// this time.  This is in ms.
-	private long updateSystemViewPeriod;
+	public static final long updateSystemViewPeriod = 2000;
 	
 	// Time to send heat beat next.
 	private long nextHeartBeatTime;
@@ -45,13 +45,12 @@ public class HeartBeatGenerator
 	// Note: This value is NOT taken mod N.
 	private int leader;
 	
-	public HeartBeatGenerator(int senderId, NetController network, int numServers, int heartBeatPeriod, int updateSystemViewPeriod)
+	
+	public HeartBeatGenerator(int senderId, NetController network, int numServers)
 	{
 		this.senderId = senderId;
 		this.network = network;
 		this.numServers = numServers;
-		this.heartBeatPeriod = heartBeatPeriod;
-		this.updateSystemViewPeriod = updateSystemViewPeriod;
 		
 		// Prime the generator.
 		this.nextHeartBeatTime = -1;

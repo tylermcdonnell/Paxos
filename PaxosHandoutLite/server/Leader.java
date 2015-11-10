@@ -116,7 +116,7 @@ public class Leader
 		{
 			// Heart beat period = .4 seconds.
 			// Update system view period = 2 seconds.
-			this.hbg = new HeartBeatGenerator(serverId, network, numServers, 400, 2000);
+			this.hbg = new HeartBeatGenerator(serverId, network, numServers);
 			
 			ArrayList<Integer> deadProcesses = null;
 			
@@ -135,7 +135,7 @@ public class Leader
 			// We can now determine, from the heart beats, who to set as our current
 			// leader.  It will not be us, because we are assuming that a server
 			// can die and recover within a single update heart beat period.
-			//this.currentLeaderId = ???
+			this.currentLeaderId = hbg.getBelievedLeader();
 			
 			// Let it be known that we are done recovering, so allClear can
 			// stop waiting on us.
@@ -146,14 +146,15 @@ public class Leader
 		
 		// On start up, leader with ID 0 is the current leader.
 		this.currentLeaderId = 0;
+		
+		// Heart beat period = .4 seconds.
+		// Update system view period = 2 seconds.
+		this.hbg = new HeartBeatGenerator(serverId, network, numServers);
+		
 		if (this.isCurrentLeader())
 		{
 			this.leaderInitialization();
 		}
-		
-		// Heart beat period = .4 seconds.
-		// Update system view period = 2 seconds.
-		this.hbg = new HeartBeatGenerator(serverId, network, numServers, 400, 2000);
 	}
 	
 	
@@ -222,7 +223,7 @@ public class Leader
 			// If we observe that the process we believe to be the leader is dead,
 			// we choose N + 1 as the new leader. Note that this is the raw value
 			// and not the value mod N (actual process ID)
-			if (deadLeaderIds.contains(this.currentLeaderId))
+			while (deadLeaderIds.contains(this.currentLeaderId))
 			{
 				this.currentLeaderId += 1;
 				// TSM: If we have just become leader, send out first scouts.
@@ -398,13 +399,13 @@ public class Leader
 			Ballot preemptingBallot = preempted.getBallot();
 			
 			// TSM: If the the process that pre-empted us has a greater leader ID, resign.
-			if (preemptingBallot.getLeaderId() > this.currentLeaderId)
-			{
-				this.currentLeaderId = preemptingBallot.getLeaderId();
-				this.active = false;
-				return;
-			}
-			else if (preemptingBallot.greaterThan(this.currBallot))
+			//if (preemptingBallot.getLeaderId() > this.currentLeaderId)
+			//{
+			//	this.currentLeaderId = preemptingBallot.getLeaderId();
+			//	this.active = false;
+			//	return;
+			//}
+			if (preemptingBallot.greaterThan(this.currBallot))
 			{
 				this.active = false;
 				
