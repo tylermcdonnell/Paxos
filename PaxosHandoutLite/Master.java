@@ -305,7 +305,13 @@ public class Master {
 				live.add(serverProcesses.get(i));
 			}
 		}
-		System.out.println("Live servers " + live);
+		System.out.print("Live servers : ");
+		
+		for (int i = 0; i < live.size(); i++)
+		{
+			System.out.print(live.get(i).id + " ");
+		}
+		System.out.println();
 		return live;
 	}
 	
@@ -323,7 +329,7 @@ public class Master {
 		//	   processes see and react to that process dying.
 		
 		// For (4), we need to wait at least one heartbeat period.
-		long minWait = System.currentTimeMillis() + HeartBeatGenerator.updateSystemViewPeriod;
+		long minWait = System.currentTimeMillis() + (2 * HeartBeatGenerator.updateSystemViewPeriod);
 		
 		while (true)
 		{
