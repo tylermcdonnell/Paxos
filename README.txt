@@ -1,7 +1,7 @@
 README - P2
 
-Mike Feilbach (mfeilbach@utexas.edu), mjf2628
-Tyler McDonnell (tyler@cs.utexas.edu), tsm563
+Mike Feilbach (mfeilbach@utexas.edu), mjf2628, feilbach
+Tyler McDonnell (tyler@cs.utexas.edu), tsm563, tyler
 University of Texas at Austin
 CS 380D -- Distributed Computing I
 Professor Lorenzo Alvisi
