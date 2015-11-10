@@ -1,0 +1,22 @@
+start 4 1
+sendMessage 0 hello world
+sendMessage 0 hi again
+sendMessage 0 WEEEE
+allClear
+crashServer 0
+crashServer 1
+crashServer 2
+sendMessage 0 FINAL
+restartServer 0
+allClear
+restartServer 1
+allClear
+restartServer 2
+allClear
+crashServer 3
+sendMessage 0 FINAL2
+restartServer 3
+allClear
+sendMessage 0 FINAL FOR REAL
+allClear
+printChatLog 0
