@@ -53,10 +53,10 @@ public class Ballot implements Serializable
 		{
 			return false;
 			/*
-			System.out.println("Comparing two equal ballots in greaterThan(Ballot y).");
-			System.out.println("x: " + this);
-			System.out.println("y: " + y);
-			System.out.println("Exiting.");
+			Logger.getInstance().println("Comparing two equal ballots in greaterThan(Ballot y).");
+			Logger.getInstance().println("x: " + this);
+			Logger.getInstance().println("y: " + y);
+			Logger.getInstance().println("Exiting.");
 			System.exit(-1);
 			*/
 		}
@@ -109,8 +109,8 @@ public class Ballot implements Serializable
 		Ballot newBallot = new Ballot(ballotId, leaderId);
 		
 		// Testing.  Quick check.
-		//System.out.println("NEW BALLOT, should be true: " + newBallot.equals(ballot));
-		//System.out.println("NEW BALLOT, should be false: " + (newBallot == ballot));
+		//Logger.getInstance().println("NEW BALLOT, should be true: " + newBallot.equals(ballot));
+		//Logger.getInstance().println("NEW BALLOT, should be false: " + (newBallot == ballot));
 		
 		return newBallot;
 	}

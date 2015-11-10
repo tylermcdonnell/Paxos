@@ -72,8 +72,8 @@ public class Acceptor
 		// Testing.
 		//if (this.isRecovering)
 		//{
-		//	System.out.println("Current time:  " + System.currentTimeMillis());
-		//	System.out.println("Waiting until: " + this.recoveryStopWaitTime);
+		//	Logger.getInstance().println("Current time:  " + System.currentTimeMillis());
+		//	Logger.getInstance().println("Waiting until: " + this.recoveryStopWaitTime);
 		//}
 	}
 	
@@ -94,13 +94,13 @@ public class Acceptor
 				ArrayList<PValue> tempAcceptedSet = tempAcceptedSetMsg.getAcceptedSet();
 				
 				// Testing.
-				//System.out.println("Acceptor " + this.serverId + " got accepted set from: " + tempAcceptedSetMsg.getSenderId());
+				//Logger.getInstance().println("Acceptor " + this.serverId + " got accepted set from: " + tempAcceptedSetMsg.getSenderId());
 				
 				// Take union of my accepted set with the one I just received.
 				PValue.takeUnionOfPValueSets(this.accepted, tempAcceptedSet);
 				
 				// Testing.
-				//System.out.println("Acceptor " + this.serverId + " new accepted set:");
+				//Logger.getInstance().println("Acceptor " + this.serverId + " new accepted set:");
 				//PValue.printNicely(this.accepted);
 			}
 			
@@ -123,7 +123,7 @@ public class Acceptor
 			if (System.currentTimeMillis() >= this.recoveryStopWaitTime)
 			{
 				this.isRecovering = false;
-				//System.out.println("Acceptor " + this.serverId + " done recovering: Current time: " + System.currentTimeMillis());
+				//Logger.getInstance().println("Acceptor " + this.serverId + " done recovering: Current time: " + System.currentTimeMillis());
 			}
 			
 			// If still recovering, do not execute commands on messages.
@@ -156,7 +156,7 @@ public class Acceptor
 		{
 			P1a p1a = (P1a) message;
 			
-			//System.out.println("Acceptor got p1a from Scout " + p1a.getMyLeaderId() + ": " + p1a);
+			//Logger.getInstance().println("Acceptor got p1a from Scout " + p1a.getMyLeaderId() + ": " + p1a);
 			
 			// If the scout's ballot is larger than this acceptor's.
 			boolean scoutBallotLarger = false;
@@ -206,7 +206,7 @@ public class Acceptor
 		{
 			P2a p2a = (P2a) message;
 			
-			//System.out.println("Acceptor got p2a from Commander " + p2a.getMyLeaderId() + ": " + p2a);
+			//Logger.getInstance().println("Acceptor got p2a from Commander " + p2a.getMyLeaderId() + ": " + p2a);
 			
 			// If commander ballot is larger than or equal to this acceptor's.
 			boolean commanderBallotIsLargerOrEqual = false;

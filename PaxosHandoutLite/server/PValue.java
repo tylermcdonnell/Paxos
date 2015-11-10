@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import ballot.Ballot;
 import client.Command;
+import log.Logger;
 
 
 /**
@@ -75,8 +76,8 @@ public class PValue implements Serializable
 		PValue newPValue = new PValue(newBallot, newSlotNumber, newCommand);
 		
 		// Testing.  Quick check.
-		//System.out.println("NEW PVALUE, should be true: " + newPValue.equals(pvalue));
-		//System.out.println("NEW PVALUE, should be false: " + (newPValue == pvalue));
+		//Logger.getInstance().println("NEW PVALUE, should be true: " + newPValue.equals(pvalue));
+		//Logger.getInstance().println("NEW PVALUE, should be false: " + (newPValue == pvalue));
 		
 		return newPValue;
 	}
@@ -110,8 +111,8 @@ public class PValue implements Serializable
 		// Testing.  Quick check.
 		//for (int i = 0; i < pvalues.size(); i++)
 		//{
-			//System.out.println("NEW PVALUE SET, element " + i + ", should be true: " + newPvalues.get(i).equals(pvalues.get(i)));
-			//System.out.println("NEW PVALUE SET, element " + i + ", should be false: " + (newPvalues.get(i) == pvalues.get(i)));
+			//Logger.getInstance().println("NEW PVALUE SET, element " + i + ", should be true: " + newPvalues.get(i).equals(pvalues.get(i)));
+			//Logger.getInstance().println("NEW PVALUE SET, element " + i + ", should be false: " + (newPvalues.get(i) == pvalues.get(i)));
 		//}
 
 		return newPvalues;
@@ -153,7 +154,7 @@ public class PValue implements Serializable
 	{
 		for (int i = 0; i < list.size(); i++)
 		{
-			System.out.println(list.get(i));
+			Logger.getInstance().println(list.get(i).toString());
 		}
 	}
 	

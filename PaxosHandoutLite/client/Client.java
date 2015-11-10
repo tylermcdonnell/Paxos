@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import framework.NetController;
+import log.Logger;
 import message.Message;
 import message.PlainMessage;
 import message.Request;
@@ -109,7 +110,7 @@ public class Client implements Runnable {
 	public void run()
 	{
 		// Testing.
-		System.out.println("Client " + this.id + " created.");
+		Logger.getInstance().println("Client " + this.id + " created.");
 		
 		while (true)
 		{
@@ -142,7 +143,7 @@ public class Client implements Runnable {
 						currCommandStatus.setNextCheckTime(nextCheckTime + Client.RESPONSE_RESEND_PERIOD);
 						
 						// Testing.
-						System.out.println("Re-sending: " + currCommandStatus.getCommand());
+						Logger.getInstance().println("Re-sending: " + currCommandStatus.getCommand());
 					}
 				}
 			}
@@ -160,7 +161,7 @@ public class Client implements Runnable {
 			// Process messages from master.
 			for (int i = 0; i < masterMessages.size(); i++)
 			{
-				//System.out.println("Client " + this.id + " received from master: " + masterMessages.get(i));
+				//Logger.getInstance().println("Client " + this.id + " received from master: " + masterMessages.get(i));
 				
 				// Construct a Command with this message as the operation.
 				Command command = new Command(this.id, this.getNextCid(), masterMessages.get(i));
@@ -172,7 +173,7 @@ public class Client implements Runnable {
 				sendRequestToAllServers(command);
 				
 				// Testing
-				//System.out.println("Sending: " + command);
+				//Logger.getInstance().println("Sending: " + command);
 			}
 			
 			
@@ -188,7 +189,7 @@ public class Client implements Runnable {
 				Message currMessage = networkMessages.get(i);
 				
 				// Testing.
-				//System.out.println("Client " + this.id + " got message on network: " + networkMessages.get(i));
+				//Logger.getInstance().println("Client " + this.id + " got message on network: " + networkMessages.get(i));
 				
 				
 				//**************************************************************
@@ -198,7 +199,7 @@ public class Client implements Runnable {
 				{
 					Response response = (Response) currMessage;
 					
-					//System.out.println("Client " + this.id + " received: " + response);
+					//Logger.getInstance().println("Client " + this.id + " received: " + response);
 					
 					// Check if we have gotten this result yet (since all
 					// replicas send a performed decision to the client
@@ -237,7 +238,7 @@ public class Client implements Runnable {
 				if (currMessage instanceof PlainMessage)
 				{
 					PlainMessage plainMessage = (PlainMessage) currMessage;
-					//System.out.println("Client " + this.id + " received " + plainMessage);
+					//Logger.getInstance().println("Client " + this.id + " received " + plainMessage);
 				}
 			}
 		}
@@ -276,7 +277,7 @@ public class Client implements Runnable {
 		//      is not equivalent to slot number. NOPs can be slotted and they
 		// 		should not appear in this output OR cause gaps in the sequence
 		//		numbers of the output.
-		System.out.println("\nCHAT LOG of client " + this.id + ":");
+		Logger.getInstance().println("\nCHAT LOG of client " + this.id + ":");
 		
 		synchronized(this.chatLog)
 		{
@@ -290,8 +291,11 @@ public class Client implements Runnable {
 				System.out.println(i + " " 
 						+ currEntry.getCommand().getClientId() + ": " 
 						+ currEntry.getCommand().getOperation());
+				Logger.getInstance().println(i + " " 
+						+ currEntry.getCommand().getClientId() + ": " 
+						+ currEntry.getCommand().getOperation());
 			}
-			System.out.println();
+			Logger.getInstance().println("");
 		}
 	}
 	

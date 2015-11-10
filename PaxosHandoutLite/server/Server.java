@@ -13,6 +13,7 @@ import message.Proposal;
 import message.Request;
 import client.Command;
 import framework.NetController;
+import log.Logger;
 
 /**
  * A Paxos server, which acts as a replica, leader, and acceptor.
@@ -65,7 +66,7 @@ public class Server implements Runnable {
 	@Override
 	public void run()
 	{
-		System.out.println("Server " + this.id + " created.");
+		Logger.getInstance().println("Server " + this.id + " created.");
 		
 		while (true)
 		{
@@ -80,7 +81,7 @@ public class Server implements Runnable {
 			// Process messages from master.
 			for (int i = 0; i < masterMessages.size(); i++)
 			{
-				System.out.println("Server " + this.id + " received from master: " + masterMessages.get(i));
+				Logger.getInstance().println("Server " + this.id + " received from master: " + masterMessages.get(i));
 			}
 			
 			
@@ -96,7 +97,7 @@ public class Server implements Runnable {
 				Message currMessage = networkMessages.get(i);
 				
 				// Testing.
-				//System.out.println("Server " + this.id + " received: " + currMessage);
+				//Logger.getInstance().println("Server " + this.id + " received: " + currMessage);
 				
 				this.replica.runTasks(currMessage);
 				this.leader.runTasks(currMessage);
@@ -106,7 +107,7 @@ public class Server implements Runnable {
 				if (currMessage instanceof PlainMessage)
 				{
 					PlainMessage plainMessage = (PlainMessage) currMessage;
-					System.out.println("Server " + this.id + " received " + plainMessage);
+					Logger.getInstance().println("Server " + this.id + " received " + plainMessage);
 				}
 			}
 			

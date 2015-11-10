@@ -1,5 +1,7 @@
 package server;
 
+import log.Logger;
+
 /**
  * A timebomb for Paxos failure testing.
  * 
@@ -54,11 +56,11 @@ public class Timebomb {
 				if (--this.countdown <= 0)
 				{
 					// Bomb current thread.
-					System.out.println("BOOM");
+					Logger.getInstance().println("BOOM");
 					this.active = false;
 					Thread.currentThread().stop();
 				}
-				System.out.println("Tick: " + this.countdown);
+				Logger.getInstance().println("Tick: " + this.countdown);
 			}
 		}
 	}
