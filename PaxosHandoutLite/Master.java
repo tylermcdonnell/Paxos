@@ -16,6 +16,7 @@ import client.Client;
 import client.Command;
 import framework.Config;
 import framework.NetController;
+import log.Logger;
 import message.Decision;
 import message.Message;
 import message.Proposal;
@@ -68,6 +69,11 @@ public class Master {
 
 	public static void main(String[] args) {
 		Scanner scan = new Scanner(System.in);
+		
+		Logger log = Logger.getInstance();
+		
+		Thread logThread = new Thread(log);
+		logThread.start();
 
 		while (scan.hasNextLine()) {
 			String[] inputLine = scan.nextLine().split(" ");
