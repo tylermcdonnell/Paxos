@@ -74,8 +74,7 @@ public class Master {
 		
 		Thread logThread = new Thread(log);
 		logThread.start();
-		log.println("Hello world.");
-
+		
 		while (scan.hasNextLine()) {
 			String[] inputLine = scan.nextLine().split(" ");
 			execute(inputLine);
@@ -312,7 +311,7 @@ public class Master {
 				live.add(serverProcesses.get(i));
 			}
 		}
-		Logger.getInstance().println("Live servers " + live);
+
 		return live;
 	}
 	
@@ -330,7 +329,7 @@ public class Master {
 		//	   processes see and react to that process dying.
 		
 		// For (4), we need to wait at least one heartbeat period.
-		long minWait = System.currentTimeMillis() + HeartBeatGenerator.updateSystemViewPeriod;
+		long minWait = System.currentTimeMillis() + (2 * HeartBeatGenerator.updateSystemViewPeriod);
 		
 		while (true)
 		{
