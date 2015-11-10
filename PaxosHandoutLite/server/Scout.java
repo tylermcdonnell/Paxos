@@ -74,7 +74,7 @@ public class Scout
 			// TSM: This is a message to another server that counts as a timebomb tick.
 			timebomb.tick();
 			
-			System.out.println("Scout " + this.myLeaderId + ": send p1a");
+			//System.out.println("Scout " + this.myLeaderId + ": send p1a");
 		}
 	}
 	
@@ -93,7 +93,7 @@ public class Scout
 		// Scouts only listen for p1b messages.
 		if (message instanceof P1b)
 		{
-			System.out.println("Scout " + this.myLeaderId + ": got p1b");
+			//System.out.println("Scout " + this.myLeaderId + ": got p1b");
 			
 			P1b p1b = (P1b) message;
 			
@@ -154,7 +154,7 @@ public class Scout
 			else
 			{
 				// An acceptor returned a ballot which did not match.
-				Preempted preempted = new Preempted(Ballot.deepCopyBallot(this.myBallot));
+				Preempted preempted = new Preempted(Ballot.deepCopyBallot(p1b.getBallot()));
 				
 				// send to leader: <preempted, b'>
 				this.network.sendMsgToServer(this.myLeaderId, preempted);

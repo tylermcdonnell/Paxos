@@ -9,3 +9,7 @@ sendMessage 0 "7"
 sendMessage 0 "8"
 sendMessage 0 "9"
 sendMessage 0 "10"
+allClear
+printChatLog 0
+printChatLog 1
+printChatLog 2

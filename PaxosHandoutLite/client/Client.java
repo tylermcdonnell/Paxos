@@ -160,7 +160,7 @@ public class Client implements Runnable {
 			// Process messages from master.
 			for (int i = 0; i < masterMessages.size(); i++)
 			{
-				System.out.println("Client " + this.id + " received from master: " + masterMessages.get(i));
+				//System.out.println("Client " + this.id + " received from master: " + masterMessages.get(i));
 				
 				// Construct a Command with this message as the operation.
 				Command command = new Command(this.id, this.getNextCid(), masterMessages.get(i));
@@ -172,7 +172,7 @@ public class Client implements Runnable {
 				sendRequestToAllServers(command);
 				
 				// Testing
-				System.out.println("Sending: " + command);
+				//System.out.println("Sending: " + command);
 			}
 			
 			
@@ -198,7 +198,7 @@ public class Client implements Runnable {
 				{
 					Response response = (Response) currMessage;
 					
-					System.out.println("Client " + this.id + " received: " + response);
+					//System.out.println("Client " + this.id + " received: " + response);
 					
 					// Check if we have gotten this result yet (since all
 					// replicas send a performed decision to the client
@@ -215,7 +215,7 @@ public class Client implements Runnable {
 					}
 		
 					// Testing.  Print out this client's view of chat room.
-					printChatLog();
+					//printChatLog();
 					
 					// Note that we have received a response to this command.
 					Command commandReceived = response.getResult().getCommand();
@@ -237,7 +237,7 @@ public class Client implements Runnable {
 				if (currMessage instanceof PlainMessage)
 				{
 					PlainMessage plainMessage = (PlainMessage) currMessage;
-					System.out.println("Client " + this.id + " received " + plainMessage);
+					//System.out.println("Client " + this.id + " received " + plainMessage);
 				}
 			}
 		}

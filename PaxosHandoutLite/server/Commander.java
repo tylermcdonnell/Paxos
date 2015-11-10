@@ -74,7 +74,7 @@ public class Commander
 			// TSM: This is a message to another server that counts as a timebomb tick.
 			timebomb.tick();
 			
-			System.out.println("Commander " + this.myLeaderId + ": send p2a");
+			//System.out.println("Commander " + this.myLeaderId + ": send p2a");
 		}
 	}
 	
@@ -93,7 +93,7 @@ public class Commander
 		// Commanders only listen for p2b messages.
 		if (message instanceof P2b)
 		{
-			System.out.println("Commander " + this.myLeaderId + ": got p2b");
+			//System.out.println("Commander " + this.myLeaderId + ": got p2b");
 			
 			P2b p2b = (P2b) message;
 			

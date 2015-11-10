@@ -112,22 +112,22 @@ public class Leader
 		// Initialize timebomb infrastructure.
 		this.timebomb = new Timebomb();
 		
-		if (isRecovering)
-		{
+		//if (isRecovering)
+		//{
 			// Heart beat period = .4 seconds.
 			// Update system view period = 2 seconds.
-			this.hbg = new HeartBeatGenerator(serverId, network, numServers);
+			//this.hbg = new HeartBeatGenerator(serverId, network, numServers);
 			
-			ArrayList<Integer> deadProcesses = null;
+			//ArrayList<Integer> deadProcesses = null;
 			
-			while (deadProcesses == null)
-			{
+			//while (deadProcesses == null)
+			//{
 				// Telling others our view of the current leader is 0 will
 				// not adversely affect other processes.
 				
 				// TODO Right?
-				deadProcesses = this.hbg.beatAndAnalyze(0);
-			}
+			//	deadProcesses = this.hbg.beatAndAnalyze(0);
+			//}
 			
 			// Loop breaks when returned value was not null.  We now have the
 			// list of dead processes in the system.
@@ -135,25 +135,39 @@ public class Leader
 			// We can now determine, from the heart beats, who to set as our current
 			// leader.  It will not be us, because we are assuming that a server
 			// can die and recover within a single update heart beat period.
-			this.currentLeaderId = hbg.getBelievedLeader();
+			//this.currentLeaderId = hbg.getBelievedLeader();
+			
+			//System.out.println("\n\nRECOVERED PROCESS" + this.serverId + "CURRENT LEADER = " + this.currentLeaderId + "\n\n");
 			
 			// Let it be known that we are done recovering, so allClear can
 			// stop waiting on us.
-			this.isRecovering = false;
+			////this.isRecovering = false;
 			
-			return;
-		}
+			//return;
+		//}
 		
 		// On start up, leader with ID 0 is the current leader.
+		// Use this as default for recovering process, as well.
 		this.currentLeaderId = 0;
 		
-		// Heart beat period = .4 seconds.
-		// Update system view period = 2 seconds.
+		// If we are recovering, set the default leader ID to -1 and
+		// it will be fixed when we get heart beats from others.
+		if (this.isRecovering)
+		{
+			this.currentLeaderId = 0;
+			this.isRecovering = false;
+		}
+		
 		this.hbg = new HeartBeatGenerator(serverId, network, numServers);
 		
-		if (this.isCurrentLeader())
+		// Only if we are not recovering do we consider leader initialization.
+		// When recovering, we will NEVER be current leader.
+		if (!this.isRecovering)
 		{
-			this.leaderInitialization();
+			if (this.isCurrentLeader())
+			{
+				this.leaderInitialization();
+			}
 		}
 	}
 	
@@ -265,7 +279,7 @@ public class Leader
 		if (message instanceof Proposal)
 		{
 			Proposal proposal = (Proposal) message;
-			System.out.println("Leader " + this.serverId + " received " + proposal);
+			//System.out.println("Leader " + this.serverId + " received " + proposal);
 			
 			// Find out if we have a proposal for this slot number already.
 			// If so, we can't consider this new proposal.
@@ -293,7 +307,7 @@ public class Leader
 				//if (!this.proposals.contains(proposal))
 				//{
 				this.proposals.add(proposal);
-				System.out.println("Leader " + this.serverId + " added Proposal: " + proposal);
+				//System.out.println("Leader " + this.serverId + " added Proposal: " + proposal);
 				//}
 				
 				
@@ -319,7 +333,7 @@ public class Leader
 					Commander newCommander = new Commander(this.serverId, this.network, this.numServers, newPValue, this.commanders.size(), this.timebomb);
 					this.commanders.add(newCommander);
 					
-					System.out.println("Leader " + this.serverId + " created Commander for " + newPValue);
+					System.out.println("\nLeader " + this.serverId + " created Commander for " + newPValue + "\n");
 				}
 			}
 		}
@@ -361,17 +375,18 @@ public class Leader
 			// Perform proposals = proposals (\oplus) pmax(pvals) from the Paper.
 			this.proposals = oplus(this.proposals, pmax_pvals);
 			
-			System.out.println("Proposals");
+			//System.out.println("Proposals");
 			
 			
-			System.out.println("proposals after \\oplus:");
-			for (int i = 0; i < this.proposals.size(); i++)
-			{
-				System.out.println("slotNum: " + this.proposals.get(i).getSlotNum() + ", " + this.proposals.get(i));
-			}
+			//System.out.println("proposals after \\oplus:");
+			//for (int i = 0; i < this.proposals.size(); i++)
+			//{
+			//	System.out.println("slotNum: " + this.proposals.get(i).getSlotNum() + ", " + this.proposals.get(i));
+			//}
 			
 			
 			// For all <s, p> \in proposals, spawn a Commander.
+			System.out.println();
 			for (int i = 0; i < this.proposals.size(); i++)
 			{
 				Proposal currProposal = this.proposals.get(i);
@@ -380,8 +395,9 @@ public class Leader
 				Commander newCommander = new Commander(this.serverId, this.network, this.numServers, newPValue, this.commanders.size(), this.timebomb);
 				this.commanders.add(newCommander);
 				
-				System.out.println("Leader " + this.serverId + " created Commander for " + newPValue);
+				System.out.println("Leader " + this.serverId + " created Commander for " + newPValue + "");
 			}
+			System.out.println();
 			
 			this.active = true;
 		}
@@ -411,7 +427,7 @@ public class Leader
 				
 				// Generate new ballots until we are greater than this one.
 				boolean notGreater = true;
-				Ballot newBallot;
+				Ballot newBallot = null;
 				
 				while (notGreater)
 				{
@@ -422,6 +438,10 @@ public class Leader
 						notGreater = false;
 					}
 				}
+				
+				this.currBallot = newBallot;
+				
+				System.out.println("Leader " + this.serverId + ": *** NEW BALLOT: " + newBallot + "\n\n");
 				
 				// We now have a ballot larger than the ballot we were preempted
 				// with.  Spawn a Scout with this new ballot.
@@ -517,7 +537,7 @@ public class Leader
 		Scout firstScout = new Scout(this.currBallot, serverId, network, numServers, this.scouts.size(), this.timebomb);
 		this.scouts.add(firstScout);
 		
-		System.out.println("Leader " + this.serverId + " is now current leader -- spawned Scout.");
+		System.out.println("\nLeader " + this.serverId + " is now current leader -- spawned Scout.\n");
 	}
 	
 

@@ -94,14 +94,14 @@ public class Acceptor
 				ArrayList<PValue> tempAcceptedSet = tempAcceptedSetMsg.getAcceptedSet();
 				
 				// Testing.
-				System.out.println("Acceptor " + this.serverId + " got accepted set from: " + tempAcceptedSetMsg.getSenderId());
+				//System.out.println("Acceptor " + this.serverId + " got accepted set from: " + tempAcceptedSetMsg.getSenderId());
 				
 				// Take union of my accepted set with the one I just received.
 				PValue.takeUnionOfPValueSets(this.accepted, tempAcceptedSet);
 				
 				// Testing.
-				System.out.println("Acceptor " + this.serverId + " new accepted set:");
-				PValue.printNicely(this.accepted);
+				//System.out.println("Acceptor " + this.serverId + " new accepted set:");
+				//PValue.printNicely(this.accepted);
 			}
 			
 			if (this.sentAcceptorSetRequests == false)
@@ -123,7 +123,7 @@ public class Acceptor
 			if (System.currentTimeMillis() >= this.recoveryStopWaitTime)
 			{
 				this.isRecovering = false;
-				System.out.println("Acceptor " + this.serverId + " done recovering: Current time: " + System.currentTimeMillis());
+				//System.out.println("Acceptor " + this.serverId + " done recovering: Current time: " + System.currentTimeMillis());
 			}
 			
 			// If still recovering, do not execute commands on messages.

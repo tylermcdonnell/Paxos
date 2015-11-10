@@ -71,7 +71,6 @@ public class StateEntry implements Serializable, Comparable<StateEntry>
 	
 	public int compareTo(StateEntry otherEntry)
 	{
-		System.out.println("CALLED");
 		if (this.getSlotNumber() < otherEntry.getSlotNumber())
 		{
 			return -1;

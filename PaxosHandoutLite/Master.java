@@ -112,7 +112,7 @@ public class Master {
 			 */
 
 			// Testing.
-			System.out.println("Sending message to Client " + clientIndex + ": " + message);
+			//System.out.println("Sending message to Client " + clientIndex + ": " + message);
 
 			// Send the client the message.
 			clientProcesses.get(clientIndex).giveClientCommand(message);
@@ -152,6 +152,7 @@ public class Master {
 			 * Immediately crash the server specified by nodeIndex
 			 */
 			Master.serverThreads.get(nodeIndex).stop();
+			System.out.println("Server " + nodeIndex + " crashed!");
 
 			break;
 

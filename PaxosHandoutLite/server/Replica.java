@@ -94,7 +94,7 @@ public class Replica
 		{
 			// IN PAPER: case <request, p>
 			Request request = (Request) message;
-			System.out.println("Replica " + this.serverId + " received " + request);
+			//System.out.println("Replica " + this.serverId + " received " + request);
 			
 			propose(request.getCommand());
 		}
@@ -107,14 +107,14 @@ public class Replica
 		{
 			// IN PAPER: case <decision, s, p>
 			Decision decision = (Decision) message;
-			System.out.println("Replica " + this.serverId + " received " + decision);
+			//System.out.println("Replica " + this.serverId + " received " + decision);
 			
 			// Add to the local list of decisions, only if we don't already
 			// have it.  Decisions can arrive multiple times.
 			if (!this.decisions.contains(decision))
 			{
 				this.decisions.add(decision);
-				System.out.println("Replica " + this.serverId + ": added decision: " + decision);
+				//System.out.println("Replica " + this.serverId + ": added decision: " + decision);
 			}
 			
 			// Keep performing decisions in slot_num as long as we can.
@@ -240,7 +240,7 @@ public class Replica
 	 */
 	private void sendProposalToAllLeaders(Proposal p)
 	{
-		System.out.println("Replica " + this.serverId + " sending to leaders: " + p);
+		//System.out.println("Replica " + this.serverId + " sending to leaders: " + p);
 		for (int i = 0; i < this.numServers; i++)
 		{
 			this.network.sendMsgToServer(i, p);
@@ -352,7 +352,7 @@ public class Replica
 				if (currDecision.getProposal().getSlotNum() < this.slot_num)
 				{
 					// Skip this command, we've already done it.
-					System.out.println("Skipping command: " + p);
+					//System.out.println("Skipping command: " + p);
 					this.slot_num++;
 					return;
 				}

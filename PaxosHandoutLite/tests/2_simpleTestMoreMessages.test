@@ -1,0 +1,13 @@
+start 3 3
+sendMessage 0 Wisconsin
+sendMessage 1 Texas
+sendMessage 2 UCLA
+sendMessage 0 Yale
+sendMessage 0 UPenn
+sendMessage 1 UCSD
+sendMessage 0 Maryland
+sendMessage 2 UNC
+allClear
+printChatLog 0
+printChatLog 1
+printChatLog 2
