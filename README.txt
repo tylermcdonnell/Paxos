@@ -8,12 +8,12 @@ Professor Lorenzo Alvisi
 Fall 2015
 
 MIKE:
-Slip days used (this project): xxxxx
-Slip days used (total)       : Homework: 4, Projects: xxxxx
+Slip days used (this project): 2
+Slip days used (total)       : Homework: 4, Projects: 2
 
 TYLER:
-Slip days used (this project): xxxxx yyyyyy
-Slip days used (total):        xxxxx
+Slip days used (this project): 2
+Slip days used (total):        Homework: 0, Projects: 2
 
 --------------------------------------------------------------------------------
 - Notes:
@@ -31,10 +31,10 @@ Project assumptions:
    storage.
    
 2. After restarting a server, allClear will be called before any additional
-   commands. See the API below for more information allClear. allClear ensures
-   (a) that the process has had to time to retrieve application state, a 
-   component of recovery; and (b) that a new leader has been decided upon
-   by the leader election protocol.
+   commands. See the API below for more informationregarding  allClear. 
+   allClear ensures (a) that the process has had to time to retrieve 
+   application state, a component of recovery; and (b) that a new leader has 
+   been decided upon by the leader election protocol.
 
 
 Here is a list of implementation-specific design decisions:
@@ -51,15 +51,22 @@ Here is a list of implementation-specific design decisions:
    from that system in some configurable time.
    
 3. The system uses a view change model for leader election. In particular, all
-   servers maintain an integer expressing the current leader. If they detect,
-   via the keep-alive failure detection mechanism, that the current leader is
-   dead, they increment the index. That process is the new leader.
+   leaders maintain an integer expressing who they think the current leader is.
+   If they detect, via the keep-alive failure detection mechanism, that the 
+   current leader is dead, they increment the index. This index corresponds to
+   who they now think is the new leader.  In addition, if a leader X sees that 
+   some other leader Y has a higher index, X will update its index to the
+   higher value. (e.g., if leader X has index = 3, and it finds that leader Y
+   has index = 5, leader X will change its index to 5).  Note that index is
+   a running count, it can take on values past (n - 1).  In other words, if
+   the index is 5 and there are 5 servers in the system, the current leader
+   is on server (5 mod n) = (5 mod 5) = 0.
    
 4. When a process first becomes leader, it immediately spawns scouts (i.e., 
-   sends out P1A messages) as described in "Paxos Made Moderately Complex."
+   sends out p1a messages) as described in "Paxos Made Moderately Complex."
    This means that the timeBombLeader command cannot be used to deterministically
-   limit P1A messages. For this reason, we have added an additional timeBomb
-   command, which can be used to specify a non-leader process. To limit P1A
+   limit p1a messages. For this reason, we have added an additional timeBomb
+   command, which can be used to specify a non-leader process. To limit p1a
    messages of a leader, you simply call timeBomb on them immediately prior
    to them becoming leader.
    
@@ -106,7 +113,7 @@ timeBombLeader <numberOfMessages>
 
 	Tells the current leader of the system to crash itself after sending
 	the specified number of server-side Paxos messages. The messages 
-	counted as "server-side Paxos messages" are the P1A and P2A messages
+	counted as "server-side Paxos messages" are the p1a and p2a messages
 	outlined in the literature: see Leslie Lamport's "Paxos Made Simple" 
 	and Robbert van Renesse's "Paxos Made Moderately Complex".
 	
