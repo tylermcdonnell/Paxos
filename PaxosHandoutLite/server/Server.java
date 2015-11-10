@@ -22,7 +22,7 @@ import framework.NetController;
 public class Server implements Runnable {
 
 	// This server's hand-made ID.
-	private final int id;
+	public final int id;
 	
 	// This server's Replica.
 	private Replica replica;
