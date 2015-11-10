@@ -165,12 +165,16 @@ public class Master {
 			// Clear net controller messages before restarting server.
 			getServerNetController(nodeIndex).getReceived();
 			
+			// Create new server and replace our reference.
 			Server server = new Server(nodeIndex, getServerNetController(nodeIndex), 
 					Master.serverQueues.get(nodeIndex), Master.numberServers, 
 					Master.numberClients, true, ACCEPTOR_SET_RECEIVE_WAIT_TIME);
-			
 			serverProcesses.set(nodeIndex, server);
+			
+			// Create new thread to run server and replace our reference.
 			Thread serverThread = new Thread(server);
+			serverThreads.set(nodeIndex, serverThread);
+			
 			serverThread.start();
 			
 			break;
@@ -293,6 +297,7 @@ public class Master {
 	private static ArrayList<Server> getLiveServers()
 	{
 		ArrayList<Server> live = new ArrayList<Server>();
+		System.out.println("server thread size " + serverProcesses.size());
 		for (int i = 0 ; i < serverThreads.size(); i++)
 		{
 			if (serverThreads.get(i).isAlive())
@@ -300,6 +305,7 @@ public class Master {
 				live.add(serverProcesses.get(i));
 			}
 		}
+		System.out.println("Live servers " + live);
 		return live;
 	}
 	
