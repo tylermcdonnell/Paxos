@@ -112,14 +112,14 @@ public class HeartBeatGenerator
 			
 			this.nextHeartBeatTime = currTime + this.heartBeatPeriod;
 			
-			//System.out.println("Leader " + this.senderId + " Sent heart beat: " + currTime);
+			//Logger.getInstance().println("Leader " + this.senderId + " Sent heart beat: " + currTime);
 		}
 		
 		
 		// If it is time to update the system view.
 		if (currTime >= this.nextUpdateTime)
 		{
-			//System.out.println("Leader " + this.senderId + " Updating system view: " + currTime);
+			//Logger.getInstance().println("Leader " + this.senderId + " Updating system view: " + currTime);
 			
 			this.nextUpdateTime = currTime + this.updateSystemViewPeriod;
 			

@@ -74,6 +74,7 @@ public class Master {
 		
 		Thread logThread = new Thread(log);
 		logThread.start();
+		log.println("Hello world.");
 
 		while (scan.hasNextLine()) {
 			String[] inputLine = scan.nextLine().split(" ");
@@ -88,7 +89,7 @@ public class Master {
 		int numNodes, numClients;
 		int clientIndex, nodeIndex;
 		
-		System.out.println(inputLine[0]);
+		Logger.getInstance().println(inputLine[0]);
 		switch (inputLine[0]) {
 
 		case "start":
@@ -118,7 +119,7 @@ public class Master {
 			 */
 
 			// Testing.
-			//System.out.println("Sending message to Client " + clientIndex + ": " + message);
+			//Logger.getInstance().println("Sending message to Client " + clientIndex + ": " + message);
 
 			// Send the client the message.
 			clientProcesses.get(clientIndex).giveClientCommand(message);
@@ -147,7 +148,7 @@ public class Master {
 			// (2) the last message sent on any NetController is more than one second ago
 			allClear();
 			
-			System.out.println("All clear returned!");
+			Logger.getInstance().println("All clear returned!");
 			
 			break;
 
@@ -158,7 +159,7 @@ public class Master {
 			 * Immediately crash the server specified by nodeIndex
 			 */
 			Master.serverThreads.get(nodeIndex).stop();
-			System.out.println("Server " + nodeIndex + " crashed!");
+			Logger.getInstance().println("Server " + nodeIndex + " crashed!");
 
 			break;
 
@@ -206,7 +207,7 @@ public class Master {
 			}
 			if (leadersFound != 1)
 			{
-				System.out.println(leadersFound + " LEADERS FOUND. THIS SHOULD NEVER HAPPEN!");
+				Logger.getInstance().println(leadersFound + " LEADERS FOUND. THIS SHOULD NEVER HAPPEN!");
 				break;
 			}
 			for (Iterator<Server> i = serverProcesses.iterator(); i.hasNext();)
@@ -295,7 +296,7 @@ public class Master {
 				execute(inputLine);
 			}
 		} catch (Exception exc) {
-			System.out.println("Error while running script.");
+			Logger.getInstance().println("Error while running script.");
 			exc.printStackTrace();
 		}
 	}
@@ -303,7 +304,7 @@ public class Master {
 	private static ArrayList<Server> getLiveServers()
 	{
 		ArrayList<Server> live = new ArrayList<Server>();
-		System.out.println("server thread size " + serverProcesses.size());
+		Logger.getInstance().println("server thread size " + serverProcesses.size());
 		for (int i = 0 ; i < serverThreads.size(); i++)
 		{
 			if (serverThreads.get(i).isAlive())
@@ -311,7 +312,7 @@ public class Master {
 				live.add(serverProcesses.get(i));
 			}
 		}
-		System.out.println("Live servers " + live);
+		Logger.getInstance().println("Live servers " + live);
 		return live;
 	}
 	
@@ -383,19 +384,19 @@ public class Master {
 			long currTime = System.currentTimeMillis();
 			
 			// Testing.
-			//System.out.println("Current Time:                      " + currTime);
-			//System.out.println("Checking against currTime - 2000:  " + (currTime - Master.ALL_CLEAR_WAIT_TIME_MS));
+			//Logger.getInstance().println("Current Time:                      " + currTime);
+			//Logger.getInstance().println("Checking against currTime - 2000:  " + (currTime - Master.ALL_CLEAR_WAIT_TIME_MS));
 			
 			for (int i = 0; i < Master.netControllers.size(); i++)
 			{
 				NetController currNetController = Master.netControllers.get(i);
 				
-				//System.out.println("NetController last send time:      " + currNetController.lastMessageTime());
+				//Logger.getInstance().println("NetController last send time:      " + currNetController.lastMessageTime());
 				
 				if (currNetController.lastMessageTime() >= (currTime - Master.ALL_CLEAR_WAIT_TIME_MS))
 				{
 					// Testing.
-					//System.out.println("Not a second since last send event.");
+					//Logger.getInstance().println("Not a second since last send event.");
 					
 					noMessagesSentLastSecond = false;
 				}
@@ -616,26 +617,26 @@ public class Master {
 		Ballot firstBallot0 = bg0.getCurrentBallot();
 		Ballot firstBallot1 = bg1.getCurrentBallot();
 
-		System.out.println("x.equals(x) (true): " + firstBallot0.equals(firstBallot0));
+		Logger.getInstance().println("x.equals(x) (true): " + firstBallot0.equals(firstBallot0));
 
-		System.out.println("x = First ballot leader 0: " + firstBallot0);
-		System.out.println("y = First ballot leader 1: " + firstBallot1);
+		Logger.getInstance().println("x = First ballot leader 0: " + firstBallot0);
+		Logger.getInstance().println("y = First ballot leader 1: " + firstBallot1);
 
-		System.out.println("x > y (false): " + firstBallot0.greaterThan(firstBallot1));
-		System.out.println("x.equals(y) (false): " + firstBallot0.equals(firstBallot1));
+		Logger.getInstance().println("x > y (false): " + firstBallot0.greaterThan(firstBallot1));
+		Logger.getInstance().println("x.equals(y) (false): " + firstBallot0.equals(firstBallot1));
 
 		Ballot secondBallot0 = bg0.getNextBallot();
 		Ballot secondBallot1 = bg1.getNextBallot();
-		System.out.println("x = Second ballot leader 0: " + secondBallot0);
-		System.out.println("y = Second ballot leader 1: " + secondBallot1);
+		Logger.getInstance().println("x = Second ballot leader 0: " + secondBallot0);
+		Logger.getInstance().println("y = Second ballot leader 1: " + secondBallot1);
 
-		System.out.println("x > y (false): " + secondBallot0.greaterThan(secondBallot1));
+		Logger.getInstance().println("x > y (false): " + secondBallot0.greaterThan(secondBallot1));
 
 		Ballot thirdBallot0 = bg0.getNextBallot();
-		System.out.println("x = Third ballot leader 0: " + thirdBallot0);
-		System.out.println("y = Second ballot leader 1: " + secondBallot1);
+		Logger.getInstance().println("x = Third ballot leader 0: " + thirdBallot0);
+		Logger.getInstance().println("y = Second ballot leader 1: " + secondBallot1);
 
-		System.out.println("x > y (true): " + thirdBallot0.greaterThan(secondBallot1));
+		Logger.getInstance().println("x > y (true): " + thirdBallot0.greaterThan(secondBallot1));
 
 		System.out.flush();
 		System.exit(-1);

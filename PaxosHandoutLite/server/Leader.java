@@ -6,6 +6,7 @@ import client.Command;
 import ballot.Ballot;
 import ballot.BallotGenerator;
 import framework.NetController;
+import log.Logger;
 import message.Adopted;
 import message.HeartBeat;
 import message.Message;
@@ -137,7 +138,7 @@ public class Leader
 			// can die and recover within a single update heart beat period.
 			//this.currentLeaderId = hbg.getBelievedLeader();
 			
-			//System.out.println("\n\nRECOVERED PROCESS" + this.serverId + "CURRENT LEADER = " + this.currentLeaderId + "\n\n");
+			//Logger.getInstance().println("\n\nRECOVERED PROCESS" + this.serverId + "CURRENT LEADER = " + this.currentLeaderId + "\n\n");
 			
 			// Let it be known that we are done recovering, so allClear can
 			// stop waiting on us.
@@ -201,7 +202,7 @@ public class Leader
 					Scout newScout = new Scout(this.currBallot, serverId, network, numServers, this.scouts.size(), this.timebomb);
 					this.scouts.add(newScout);
 					
-					System.out.println("Leader " + this.serverId + " RESPAWNED a Scout.");
+					Logger.getInstance().println("Leader " + this.serverId + " RESPAWNED a Scout.");
 				}
 				
 				if (this.commandersWaiting.size() > 0)
@@ -212,7 +213,7 @@ public class Leader
 						Commander newCommander = new Commander(this.serverId, this.network, this.numServers, newPValue, this.commanders.size(), this.timebomb);
 						this.commanders.add(newCommander);
 						
-						System.out.println("Leader " + this.serverId + " created Commander for " + newPValue);
+						Logger.getInstance().println("Leader " + this.serverId + " created Commander for " + newPValue);
 					}
 					
 					// Clear the list, we have revived all commanders!
@@ -228,7 +229,7 @@ public class Leader
 			{
 				System.out.print(deadLeaderIds.get(i) + ", ");
 			}
-			System.out.println();
+			Logger.getInstance().println();
 			*/
 			
 			//****************************************
@@ -279,7 +280,7 @@ public class Leader
 		if (message instanceof Proposal)
 		{
 			Proposal proposal = (Proposal) message;
-			//System.out.println("Leader " + this.serverId + " received " + proposal);
+			//Logger.getInstance().println("Leader " + this.serverId + " received " + proposal);
 			
 			// Find out if we have a proposal for this slot number already.
 			// If so, we can't consider this new proposal.
@@ -307,7 +308,7 @@ public class Leader
 				//if (!this.proposals.contains(proposal))
 				//{
 				this.proposals.add(proposal);
-				//System.out.println("Leader " + this.serverId + " added Proposal: " + proposal);
+				//Logger.getInstance().println("Leader " + this.serverId + " added Proposal: " + proposal);
 				//}
 				
 				
@@ -333,7 +334,7 @@ public class Leader
 					Commander newCommander = new Commander(this.serverId, this.network, this.numServers, newPValue, this.commanders.size(), this.timebomb);
 					this.commanders.add(newCommander);
 					
-					System.out.println("\nLeader " + this.serverId + " created Commander for " + newPValue + "\n");
+					Logger.getInstance().println("\nLeader " + this.serverId + " created Commander for " + newPValue + "\n");
 				}
 			}
 		}
@@ -352,7 +353,7 @@ public class Leader
 		if (message instanceof Adopted)
 		{
 			Adopted adopted = (Adopted) message;
-			System.out.println("Leader " + this.serverId + " received " + adopted);
+			Logger.getInstance().println("Leader " + this.serverId + " received " + adopted);
 			
 			// pvals from the Paper.
 			ArrayList<PValue> pvals = adopted.getPvalues();
@@ -365,28 +366,28 @@ public class Leader
 			ArrayList<Proposal> pmax_pvals = pmax(pvals);
 			
 			/*
-			System.out.println("pmax_pvals:");
+			Logger.getInstance().println("pmax_pvals:");
 			for (int i = 0; i < pmax_pvals.size(); i++)
 			{
-				System.out.println("slotNum: " + pmax_pvals.get(i).getSlotNum() + ", " + pmax_pvals.get(i));
+				Logger.getInstance().println("slotNum: " + pmax_pvals.get(i).getSlotNum() + ", " + pmax_pvals.get(i));
 			}
 			*/
 						
 			// Perform proposals = proposals (\oplus) pmax(pvals) from the Paper.
 			this.proposals = oplus(this.proposals, pmax_pvals);
 			
-			//System.out.println("Proposals");
+			//Logger.getInstance().println("Proposals");
 			
 			
-			//System.out.println("proposals after \\oplus:");
+			//Logger.getInstance().println("proposals after \\oplus:");
 			//for (int i = 0; i < this.proposals.size(); i++)
 			//{
-			//	System.out.println("slotNum: " + this.proposals.get(i).getSlotNum() + ", " + this.proposals.get(i));
+			//	Logger.getInstance().println("slotNum: " + this.proposals.get(i).getSlotNum() + ", " + this.proposals.get(i));
 			//}
 			
 			
 			// For all <s, p> \in proposals, spawn a Commander.
-			System.out.println();
+			Logger.getInstance().println("");
 			for (int i = 0; i < this.proposals.size(); i++)
 			{
 				Proposal currProposal = this.proposals.get(i);
@@ -395,9 +396,9 @@ public class Leader
 				Commander newCommander = new Commander(this.serverId, this.network, this.numServers, newPValue, this.commanders.size(), this.timebomb);
 				this.commanders.add(newCommander);
 				
-				System.out.println("Leader " + this.serverId + " created Commander for " + newPValue + "");
+				Logger.getInstance().println("Leader " + this.serverId + " created Commander for " + newPValue + "");
 			}
-			System.out.println();
+			Logger.getInstance().println("");
 			
 			this.active = true;
 		}
@@ -409,7 +410,7 @@ public class Leader
 		if (message instanceof Preempted)
 		{
 			Preempted preempted = (Preempted) message;
-			System.out.println("Leader " + this.serverId + " received " + preempted);
+			Logger.getInstance().println("Leader " + this.serverId + " received " + preempted);
 			
 			// The Ballot which we were preempted with.
 			Ballot preemptingBallot = preempted.getBallot();
@@ -441,7 +442,7 @@ public class Leader
 				
 				this.currBallot = newBallot;
 				
-				System.out.println("Leader " + this.serverId + ": *** NEW BALLOT: " + newBallot + "\n\n");
+				Logger.getInstance().println("Leader " + this.serverId + ": *** NEW BALLOT: " + newBallot + "\n\n");
 				
 				// We now have a ballot larger than the ballot we were preempted
 				// with.  Spawn a Scout with this new ballot.
@@ -468,7 +469,7 @@ public class Leader
 					// of servers are back up.
 					this.scoutWaiting = true;
 					
-					System.out.println("Scout " + this.serverId + " timed out.");
+					Logger.getInstance().println("Scout " + this.serverId + " timed out.");
 					
 					this.scouts.add(i, null);
 					this.scouts.remove(i + 1);
@@ -479,7 +480,7 @@ public class Leader
 				if (scoutReturnValue != -1)
 				{
 					// Testing.
-					//System.out.println("Nulled out Scout of ID: " + scoutReturnValue);
+					//Logger.getInstance().println("Nulled out Scout of ID: " + scoutReturnValue);
 					
 					this.scouts.add(i, null);
 					this.scouts.remove(i + 1);
@@ -505,7 +506,7 @@ public class Leader
 					// of servers are back up.
 					this.commandersWaiting.add(commanderReturnValue.getPValue());
 					
-					System.out.println("Commander " + this.serverId + " timed out.");
+					Logger.getInstance().println("Commander " + this.serverId + " timed out.");
 					
 					this.commanders.add(i, null);
 					this.commanders.remove(i + 1);
@@ -517,7 +518,7 @@ public class Leader
 				if (commanderReturnValue.getReturnValue() != -1)
 				{
 					// Testing.
-					//System.out.println("Leader " + this.serverId + " nulled out Commander of ID: " + commanderReturnValue);
+					//Logger.getInstance().println("Leader " + this.serverId + " nulled out Commander of ID: " + commanderReturnValue);
 					
 					this.commanders.add(i, null);
 					this.commanders.remove(i + 1);
@@ -537,7 +538,7 @@ public class Leader
 		Scout firstScout = new Scout(this.currBallot, serverId, network, numServers, this.scouts.size(), this.timebomb);
 		this.scouts.add(firstScout);
 		
-		System.out.println("\nLeader " + this.serverId + " is now current leader -- spawned Scout.\n");
+		Logger.getInstance().println("\nLeader " + this.serverId + " is now current leader -- spawned Scout.\n");
 	}
 	
 
@@ -569,18 +570,18 @@ public class Leader
 	 */
 	public void whois()
 	{
-		System.out.println("Process " + this.serverId + " summary.");
-		System.out.println("--------------------------------------");
-		System.out.println("Leader: " + this.currentLeaderId);
+		Logger.getInstance().println("Process " + this.serverId + " summary.");
+		Logger.getInstance().println("--------------------------------------");
+		Logger.getInstance().println("Leader: " + this.currentLeaderId);
 		for (int i = 0; i < this.numServers; i++)
 		{
 			if (this.heartbeatSnapshot.contains(i))
 			{
-				System.out.println("Server " + i + ": " + "DEAD");
+				Logger.getInstance().println("Server " + i + ": " + "DEAD");
 			}
 			else
 			{
-				System.out.println("Server " + i + ": " + "ALIVE");
+				Logger.getInstance().println("Server " + i + ": " + "ALIVE");
 			}
 		}
 	}
@@ -659,7 +660,7 @@ public class Leader
 			if (!slotNumsInY.contains(xSlotNum))
 			{
 				// Testing.
-				//System.out.println("Slot number NOT in y: " + xSlotNum);
+				//Logger.getInstance().println("Slot number NOT in y: " + xSlotNum);
 				
 				// Add the elements of x with this slot number to the
 				// result list.  There should only be one? // TODO //  ///  / / / / / / /// // // /  // // // // // // // // 
@@ -712,7 +713,7 @@ public class Leader
 			int slotNumber = slots.get(i);
 			
 			// Testing.
-			//System.out.println("Considering slot number: " + slotNumber);
+			//Logger.getInstance().println("Considering slot number: " + slotNumber);
 			
 			for (int j = 0; j < pvals.size(); j++)
 			{

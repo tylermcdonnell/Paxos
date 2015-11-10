@@ -74,7 +74,7 @@ public class Scout
 			// TSM: This is a message to another server that counts as a timebomb tick.
 			timebomb.tick();
 			
-			//System.out.println("Scout " + this.myLeaderId + ": send p1a");
+			//Logger.getInstance().println("Scout " + this.myLeaderId + ": send p1a");
 		}
 	}
 	
@@ -93,7 +93,7 @@ public class Scout
 		// Scouts only listen for p1b messages.
 		if (message instanceof P1b)
 		{
-			//System.out.println("Scout " + this.myLeaderId + ": got p1b");
+			//Logger.getInstance().println("Scout " + this.myLeaderId + ": got p1b");
 			
 			P1b p1b = (P1b) message;
 			
@@ -112,7 +112,7 @@ public class Scout
 				{
 					System.out.print(this.waitFor.get(i) + " ");
 				}
-				System.out.println();*/
+				Logger.getInstance().println();*/
 				
 				// Take this acceptor's ID off of the wait for list.
 				// Make sure we remove the Integer object, not the element
@@ -126,7 +126,7 @@ public class Scout
 				{
 					System.out.print(this.waitFor.get(i) + " ");
 				}
-				System.out.println();*/
+				Logger.getInstance().println();*/
 				
 				// If |waitFor| < (|acceptors| / 2).  In other words, do we 
 				// have majority of acceptors saying they like our ballot?

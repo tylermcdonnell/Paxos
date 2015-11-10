@@ -66,8 +66,8 @@ public class Command implements Serializable
 		Command newCommand = new Command(newClientId, newCommandId, newOperation);
 		
 		// Testing.  Quick check.
-		//System.out.println("NEW COMMANAD, should be true: " + newCommand.equals(command));
-		//System.out.println("NEW COMMAND, should be false: " + (newCommand == command));
+		//Logger.getInstance().println("NEW COMMANAD, should be true: " + newCommand.equals(command));
+		//Logger.getInstance().println("NEW COMMAND, should be false: " + (newCommand == command));
 		
 		return newCommand;
 	}

@@ -74,7 +74,7 @@ public class Commander
 			// TSM: This is a message to another server that counts as a timebomb tick.
 			timebomb.tick();
 			
-			//System.out.println("Commander " + this.myLeaderId + ": send p2a");
+			//Logger.getInstance().println("Commander " + this.myLeaderId + ": send p2a");
 		}
 	}
 	
@@ -93,7 +93,7 @@ public class Commander
 		// Commanders only listen for p2b messages.
 		if (message instanceof P2b)
 		{
-			//System.out.println("Commander " + this.myLeaderId + ": got p2b");
+			//Logger.getInstance().println("Commander " + this.myLeaderId + ": got p2b");
 			
 			P2b p2b = (P2b) message;
 			
@@ -108,7 +108,7 @@ public class Commander
 				{
 					System.out.print(this.waitFor.get(i) + " ");
 				}
-				System.out.println();
+				Logger.getInstance().println();
 				*/
 				
 				// Take this acceptor's ID off of the wait for list.
@@ -124,7 +124,7 @@ public class Commander
 				{
 					System.out.print(this.waitFor.get(i) + " ");
 				}
-				System.out.println();
+				Logger.getInstance().println();
 				*/
 				
 				// If |waitFor| < (|acceptors| / 2).  In other words, do we 

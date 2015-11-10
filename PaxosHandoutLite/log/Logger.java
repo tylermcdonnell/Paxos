@@ -38,7 +38,6 @@ public class Logger implements Runnable {
 		{
 			while (q.peek() != null)
 			{
-				System.out.println("NonNull");
 				System.out.println(q.remove());
 			}
 		}

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.logging.Level;
 
+import log.Logger;
 import message.HeartBeat;
 import message.Message;
 
@@ -146,8 +147,8 @@ public class NetController {
 		}
 		catch (Exception exc)
 		{
-			System.out.println(exc.getMessage());
-			System.out.println("ERROR: IOException while sending message.");
+			Logger.getInstance().println(exc.getMessage());
+			Logger.getInstance().println("ERROR: IOException while sending message.");
 			return false;
 		}
 	}
@@ -168,8 +169,8 @@ public class NetController {
 		}
 		catch (Exception exc)
 		{
-			System.out.println(exc.getMessage());
-			System.out.println("ERROR: IOException while sending message.");
+			Logger.getInstance().println(exc.getMessage());
+			Logger.getInstance().println("ERROR: IOException while sending message.");
 			return false;
 		}
 	}
@@ -223,12 +224,12 @@ public class NetController {
 			}
 			catch(IOException exc)
 			{
-				System.out.println("ERROR: I/O while receiving message.");
+				Logger.getInstance().println("ERROR: I/O while receiving message.");
 				exc.printStackTrace();
 			}
 			catch(ClassNotFoundException exc)
 			{
-				System.out.println("ERROR: Class not found while receiving message.");
+				Logger.getInstance().println("ERROR: Class not found while receiving message.");
 			}
 		}
 		return received;
