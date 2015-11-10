@@ -252,7 +252,7 @@ public class Leader
 			
 			if (leaderChanged)
 			{
-				System.out.println("~~~ Current leader died.                  Leader " + this.serverId + ": my current leader is now " + this.currentLeaderId);
+				Logger.getInstance().println("~~~ Current leader died.                  Leader " + this.serverId + ": my current leader is now " + this.currentLeaderId);
 			}
 		}
 		
@@ -282,7 +282,7 @@ public class Leader
 			// Testing.
 			if (oldLeader != this.currentLeaderId)
 			{
-				System.out.println("~~~ Current leader changed (found in HB). Leader " + this.serverId + ": my current leader is now " + this.currentLeaderId);
+				Logger.getInstance().println("~~~ Current leader changed (found in HB). Leader " + this.serverId + ": my current leader is now " + this.currentLeaderId);
 			}
 		}
 		
