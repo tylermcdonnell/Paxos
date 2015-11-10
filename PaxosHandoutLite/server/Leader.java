@@ -237,14 +237,21 @@ public class Leader
 			// If we observe that the process we believe to be the leader is dead,
 			// we choose N + 1 as the new leader. Note that this is the raw value
 			// and not the value mod N (actual process ID)
+			boolean leaderChanged = false;
 			while (deadLeaderIds.contains(this.currentLeaderId % this.numServers))
 			{
+				leaderChanged = true;
 				this.currentLeaderId += 1;
 				// TSM: If we have just become leader, send out first scouts.
 				if (this.isCurrentLeader())
 				{
 					leaderInitialization();
 				}
+			}
+			
+			if (leaderChanged)
+			{
+				System.out.println("~~~ Current leader died.                  Leader " + this.serverId + ": my current leader is now " + this.currentLeaderId);
 			}
 		}
 		
@@ -269,6 +276,12 @@ public class Leader
 			{
 				// TSM: If we have just become leader, send out first scouts.
 				leaderInitialization();
+			}
+			
+			// Testing.
+			if (oldLeader != this.currentLeaderId)
+			{
+				System.out.println("~~~ Current leader changed (found in HB). Leader " + this.serverId + ": my current leader is now " + this.currentLeaderId);
 			}
 		}
 		
