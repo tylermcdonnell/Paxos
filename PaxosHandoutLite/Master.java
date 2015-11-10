@@ -72,8 +72,8 @@ public class Master {
 		
 		Logger log = Logger.getInstance();
 		
-		Thread logThread = new Thread(log);
-		logThread.start();
+		//Thread logThread = new Thread(log);
+		//logThread.start();
 		
 		while (scan.hasNextLine()) {
 			String[] inputLine = scan.nextLine().split(" ");
