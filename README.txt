@@ -16,11 +16,29 @@ Slip days used (this project): 2
 Slip days used (total):        Homework: 0, Projects: 2
 
 --------------------------------------------------------------------------------
+- To Run:
+--------------------------------------------------------------------------------
+
+To run, execute:
+
+javac Master.java
+java Master
+
+Alternatively, run Master.java in a Java IDE such as Eclipse.
+
+Once running Master.java, you can make API calls by using the defined format 
+and pressing enter (new line) between each command. Make special note of the
+script API command, which will read in entire files of pre-defined commands.
+
+You can see examples of test scripts (including the ones provided to us) in
+the tests/ directory.
+
+--------------------------------------------------------------------------------
 - Notes:
 --------------------------------------------------------------------------------
 
-This implementation of Paxos is strongly based on Robbert van Renesse's 
-paper, "Paxos Made Moderately Complex." 
+This implementation of multi-decree Paxos is strongly based on Robbert van 
+Renesse's paper, "Paxos Made Moderately Complex." 
 
 Project assumptions:
 
@@ -63,7 +81,7 @@ Here is a list of implementation-specific design decisions:
    is on server (5 mod n) = (5 mod 5) = 0.
    
 4. When a process first becomes leader, it immediately spawns scouts (i.e., 
-   sends out p1a messages) as described in "Paxos Made Moderately Complex."
+   sends out p1a messages), as described in "Paxos Made Moderately Complex."
    This means that the timeBombLeader command cannot be used to deterministically
    limit p1a messages. For this reason, we have added an additional timeBomb
    command, which can be used to specify a non-leader process. To limit p1a
