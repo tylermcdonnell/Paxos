@@ -237,7 +237,7 @@ public class Leader
 			// If we observe that the process we believe to be the leader is dead,
 			// we choose N + 1 as the new leader. Note that this is the raw value
 			// and not the value mod N (actual process ID)
-			while (deadLeaderIds.contains(this.currentLeaderId))
+			while (deadLeaderIds.contains(this.currentLeaderId % this.numServers))
 			{
 				this.currentLeaderId += 1;
 				// TSM: If we have just become leader, send out first scouts.
