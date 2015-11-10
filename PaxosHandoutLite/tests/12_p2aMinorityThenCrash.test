@@ -6,6 +6,4 @@ sendMessage 0 hi again
 allClear
 sendMessage 0 final
 allClear
-restartServer 0
-allClear
 printChatLog 0
