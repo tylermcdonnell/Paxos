@@ -219,6 +219,12 @@ public class Master {
 			}
 			break;
 			
+		case "timeBomb":
+			nodeIndex = Integer.parseInt(inputLine[1]);
+			numMessages = Integer.parseInt(inputLine[2]);	
+			serverProcesses.get(nodeIndex).timeBomb(numMessages);	
+			break;
+			
 		// Added by Tyler.
 		case "whois":
 			/*

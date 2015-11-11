@@ -563,10 +563,7 @@ public class Leader
 	 */
 	public void timebomb(int countdown)
 	{
-		if (this.isCurrentLeader())
-		{
-			this.timebomb.set(countdown);	
-		}
+		this.timebomb.set(countdown);	
 	}
 	
 	/**
