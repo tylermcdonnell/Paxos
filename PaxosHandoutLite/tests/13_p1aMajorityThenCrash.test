@@ -1,7 +1,7 @@
 start 3 1
 sendMessage 0 hello world
 allClear
-timebomb 1 2
+timebomb 0 2
 sendMessage 0 hi again
 allClear
 sendMessage 0 final
